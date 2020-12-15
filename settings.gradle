@@ -1,0 +1,5 @@
+rootProject.name = 'ChessEngineProjects'
+
+include 'Board','MontoCarlo','NeuralNet','Core'
+include 'Common'
+

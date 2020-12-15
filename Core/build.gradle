@@ -1,0 +1,9 @@
+
+dependencies {
+    implementation project(':Board')
+    implementation project(':MontoCarlo')
+    implementation project(':NeuralNet')
+    implementation project(':Common')
+
+}
+
