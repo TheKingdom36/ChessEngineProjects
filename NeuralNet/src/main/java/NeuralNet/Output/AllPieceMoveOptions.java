@@ -1,9 +1,9 @@
 package NeuralNet.Output;
 
 
-import ChessBoard.Enums.Type;
-import ChessBoard.Models.Position;
-import ChessBoard.Util.Directions;
+import GameBoard.ChessBoard.Enums.Type;
+import GameBoard.ChessBoard.Models.Position;
+import GameBoard.ChessBoard.Util.Directions;
 
 import java.util.ArrayList;
 import java.util.List;

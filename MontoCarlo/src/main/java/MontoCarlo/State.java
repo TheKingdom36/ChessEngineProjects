@@ -1,12 +1,11 @@
 package MontoCarlo;
 
-import ChessBoard.Common.Interfaces.Move;
-import ChessBoard.Enums.Color;
-import ChessBoard.Enums.Type;
-import ChessBoard.Models.ChessBoard;
-import ChessBoard.Moves.ChessMove;
-import ChessBoard.Moves.NormalPromotionChessMove;
-import ChessBoard.Moves.TakePromotionChessMove;
+import GameBoard.Common.Interfaces.Move;
+import GameBoard.ChessBoard.Enums.Type;
+import GameBoard.ChessBoard.Moves.ChessMove;
+import GameBoard.ChessBoard.Moves.NormalPromotionChessMove;
+import GameBoard.ChessBoard.Moves.TakePromotionChessMove;
+import NeuralNet.Output.MoveOption;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,19 +19,13 @@ public class State {
 
     @Getter @Setter private Boolean isActive;
     @Getter @Setter private double winScore;
+    @Getter @Setter private Move move;
 
     private double isBestMoveProbability;
     private GameState gameState;
-    private ChessMove chessMove;
+
     private int idMove;
 
-    public ChessMove getChessMove() {
-        return chessMove;
-    }
-
-    public void setChessMove(ChessMove chessMove) {
-        this.chessMove = chessMove;
-    }
 
     public State(){
         isActive = false;
@@ -44,7 +37,7 @@ public class State {
     }
 
     public State(State state) {
-        this.gameState = this.gameState.CreateNewState();
+        this.gameState = this.gameState.createNewState();
         this.visitCount = state.getVisitCount();
         this.isBestMoveProbability = state.getBestMoveProbability();
         winScore=0;
@@ -90,15 +83,6 @@ public class State {
     }
 
 
-
-    Color getPlayerColor() {
-        return this.gameState.getPlayerColor();
-    }
-    void setPlayerColor(Color playerColor) {
-        this.gameState.setPlayerColor(playerColor);
-    }
-
-
     public int getVisitCount() {
         return visitCount;
     }
@@ -108,59 +92,58 @@ public class State {
     }
 
     public State[] getAllPossibleStates() {
-                                                                    //Board is always from white persepective
+
         List<Move> Moves = gameState.getAllAvailableMoves();
 
-        State[] states = new State[State.getMovesOptions().size()];
+        State[] states = new State[Moves.size()];
 
         for(int i = 0; i< State.getMovesOptions().size(); i++){
             states[i] = new State();
             states[i].setIsActive(false);
-
         }
 
         int stateCounter=0;
 
-        for(ChessMove m: chessMoves){
+        for(Move move: Moves){
 
             List<MoveOption> moveOptions = AllPieceMoveOptions.getMoveOptions();
             for (int i = 0; i < moveOptions.size(); i++) {
                 MoveOption moveOption = moveOptions.get(i);
                 if (moveOption instanceof QueenMoveOption) {
 
-                    if (m.getFrom().compareTo(moveOption.getPiecePos()) == 0 &&
-                            (m.getTo().getX() - m.getFrom().getX()) == moveOption.getDirection().getX() &&
-                            (m.getTo().getY() - m.getFrom().getY()) == moveOption.getDirection().getY()
+                    if (move.getFrom().compareTo(moveOption.getPiecePos()) == 0 &&
+                            (move.getTo().getX() - move.getFrom().getX()) == moveOption.getDirection().getX() &&
+                            (move.getTo().getY() - move.getFrom().getY()) == moveOption.getDirection().getY()
                     ) {
 
                         int higher;
-                        if (Math.abs(m.getTo().getX() - m.getFrom().getX()) > Math.abs(m.getTo().getY() - m.getFrom().getY())) {
+                        if (Math.abs(move.getTo().getX() - move.getFrom().getX()) > Math.abs(move.getTo().getY() - move.getFrom().getY())) {
 
-                            higher = Math.abs(m.getTo().getX() - m.getFrom().getX());
+                            higher = Math.abs(move.getTo().getX() - move.getFrom().getX());
                         } else {
 
 
-                            higher = Math.abs(m.getTo().getY() - m.getFrom().getY());
+                            higher = Math.abs(move.getTo().getY() - move.getFrom().getY());
                         }
 
                         if (higher == ((QueenMoveOption) moveOption).getDistanceFromPiecePos()) {
-                            CreateStateFromCurrentState(states[stateCounter], m,i);
+                            CreateStateFromCurrentState(states[stateCounter], move,i);
                             break;
                         }
                     }
                 } else if (moveOption instanceof KnightMoveOption) {
-                    if (m.getFrom().compareTo(moveOption.getPiecePos()) == 0 && m.getChessPiece().getType() == Type.Knight) {
-                        if ((m.getTo().getX() - m.getFrom().getX()) == moveOption.getDirection().getX() &&
-                                (m.getTo().getY() - m.getFrom().getY()) == moveOption.getDirection().getY()) {
-                            CreateStateFromCurrentState(states[stateCounter], m,i);
+                    if (move.getFrom().compareTo(moveOption.getPiecePos()) == 0 && move.getChessPiece().getType() == Type.Knight) {
+                        if ((move.getTo().getX() - move.getFrom().getX()) == moveOption.getDirection().getX() &&
+                                (move.getTo().getY() - move.getFrom().getY()) == moveOption.getDirection().getY()) {
+                            CreateStateFromCurrentState(states[stateCounter], move,i);
                             break;
                         }
                     }
                 } else if (moveOption instanceof PawnPromotionMoveOption) {
-                    if (m.getFrom().compareTo(moveOption.getPiecePos()) == 0 && (m instanceof NormalPromotionChessMove || m instanceof TakePromotionChessMove) && m.getChessPiece().getType() == Type.Pawn) {
-                        if ((m.getTo().getX() - m.getFrom().getX()) == moveOption.getDirection().getX() &&
-                                (m.getTo().getY() - m.getFrom().getY()) == moveOption.getDirection().getY()) {
-                            CreateStateFromCurrentState(states[stateCounter], m,i);
+                    if (move.getFrom().compareTo(moveOption.getPiecePos()) == 0 && (move instanceof NormalPromotionChessMove || move instanceof TakePromotionChessMove) && move.getChessPiece().getType() == Type.Pawn) {
+                        if ((move.getTo().getX() - move.getFrom().getX()) == moveOption.getDirection().getX() &&
+                                (move.getTo().getY() - move.getFrom().getY()) == moveOption.getDirection().getY()) {
+                            CreateStateFromCurrentState(states[stateCounter], move,i);
                             break;
                         }
                     }
@@ -197,8 +180,8 @@ public class State {
     private void CreateStateFromCurrentState(State newState, ChessMove m, int idMove) {
         newState.setIsActive(true);
         newState.setIdMove(idMove);
-        newState.setChessMove(m);
-        newState.setGameState(new BoardState(this.boardState,m));
+        newState.setMove(m);
+        newState.setGameState(this.gameState.createNewState(m));
     }
 
     void incrementVisit() {
@@ -207,11 +190,5 @@ public class State {
 
 
 
-    void togglePlayer() {
-        if(boardState.getPlayerColor()== Color.White){
-            boardState.setPlayerColor(Color.Black);
-        }else{
-            boardState.setPlayerColor(Color.White);
-        }
-    }
+
 }

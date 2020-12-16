@@ -1,8 +1,8 @@
 package NeuralNet.Output;
 
 
-import ChessBoard.Enums.Type;
-import ChessBoard.Models.Position;
+import GameBoard.ChessBoard.Enums.Type;
+import GameBoard.ChessBoard.Models.Position;
 
 public class PawnPromotionMoveOption extends MoveOption {
     Type promotedToPieceType;

@@ -1,10 +1,10 @@
 package ChessEngine.Util;
 
 
-import ChessBoard.Enums.Color;
-import ChessBoard.Models.ChessBoard;
-import ChessBoard.Models.ChessPiece;
-import ChessBoard.Util.PieceStore;
+import GameBoard.ChessBoard.Enums.Color;
+import GameBoard.ChessBoard.Models.ChessBoard;
+import GameBoard.ChessBoard.Models.ChessPiece;
+import GameBoard.ChessBoard.Util.PieceStore;
 
 public class ConvertBoardToWhite {
     public static ChessBoard Convert(ChessBoard chessBoard){

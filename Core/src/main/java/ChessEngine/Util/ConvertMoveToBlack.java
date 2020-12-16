@@ -1,11 +1,11 @@
 package ChessEngine.Util;
 
 
-import ChessBoard.Enums.Color;
-import ChessBoard.Models.Position;
-import ChessBoard.Moves.*;
-import ChessBoard.Util.ChessPosStore;
-import ChessBoard.Util.PieceStore;
+import GameBoard.ChessBoard.Enums.Color;
+import GameBoard.ChessBoard.Models.Position;
+import GameBoard.ChessBoard.Moves.*;
+import GameBoard.ChessBoard.Util.ChessPosStore;
+import GameBoard.ChessBoard.Util.PieceStore;
 
 /**
  * Used to Convert a Move to Black form White

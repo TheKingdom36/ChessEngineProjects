@@ -1,7 +1,7 @@
 package NeuralNet.Output;
 
 
-import ChessBoard.Models.Position;
+import GameBoard.ChessBoard.Models.Position;
 
 /**
  * Defines a move option on a chessBoard

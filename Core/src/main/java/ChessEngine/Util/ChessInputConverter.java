@@ -1,8 +1,8 @@
 package ChessEngine.Util;
 
 
-import ChessBoard.Enums.Color;
-import ChessBoard.Models.ChessBoard;
+import GameBoard.ChessBoard.Enums.Color;
+import GameBoard.ChessBoard.Models.ChessBoard;
 import ChessEngine.ChessBoardState;
 import Common.Plane;
 

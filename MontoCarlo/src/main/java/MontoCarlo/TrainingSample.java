@@ -1,21 +1,22 @@
 package MontoCarlo;
 
-import ChessBoard.Enums.Color;
-import ChessBoard.Models.ChessBoard;
+import GameBoard.ChessBoard.Enums.Color;
+import GameBoard.ChessBoard.Models.ChessBoard;
+import GameBoard.Common.Interfaces.Board;
 
 import java.util.Arrays;
 
 public class TrainingSample {
-    private ChessBoard chessBoard;
+    private Board board;
     private double[] policy;
     private int value;
-    private Color playerColor;
+    private String playerID;
 
-    public TrainingSample(ChessBoard chessBoard, double[] policy, int value, Color playerColor){
-        this.chessBoard = chessBoard;
+    public TrainingSample(Board board, double[] policy, int value, String playerID){
+        this.board = board;
         this.policy= policy;
         this.value = value;
-        this.playerColor = playerColor;
+        this.playerID = playerID;
     }
 
 
@@ -24,12 +25,12 @@ public class TrainingSample {
 
     }
 
-    public ChessBoard getBoard() {
-        return chessBoard;
+    public Board getBoard() {
+        return board;
     }
 
-    public void setBoard(ChessBoard chessBoard) {
-        this.chessBoard = chessBoard;
+    public void setBoard(Board board) {
+        this.board = board;
     }
 
     public double[] getPolicy() {
@@ -48,21 +49,21 @@ public class TrainingSample {
         this.value = value;
     }
 
-    public Color getPlayerColor() {
-        return playerColor;
+    public String getPlayerID() {
+        return playerID;
     }
 
-    public void setPlayerColor(Color playerColor) {
-        this.playerColor = playerColor;
+    public void setPlayerID(String playerID) {
+        this.playerID = playerID;
     }
 
     @Override
     public String toString() {
         return "MontoCarlo.TrainingSample{" +
-                "board=" + chessBoard +
+                "board=" + board +
                 ", policy=" + Arrays.toString(policy) +
                 ", value=" + value +
-                ", playerColor=" + playerColor +
+                ", playerColor=" + playerID +
                 '}';
     }
 }

@@ -1,13 +1,13 @@
 package ChessEngine;
 
 
-import ChessBoard.Common.Interfaces.Move;
-import ChessBoard.Enums.Color;
-import ChessBoard.Models.ChessBoard;
-import ChessBoard.MoveCheckers.CastleCheck;
-import ChessBoard.Moves.CastleChessMove;
-import ChessBoard.Moves.ChessMove;
-import ChessBoard.Util.ChessPosStore;
+import GameBoard.Common.Interfaces.Move;
+import GameBoard.ChessBoard.Enums.Color;
+import GameBoard.ChessBoard.Models.ChessBoard;
+import GameBoard.ChessBoard.MoveCheckers.CastleCheck;
+import GameBoard.ChessBoard.Moves.CastleChessMove;
+import GameBoard.ChessBoard.Moves.ChessMove;
+import GameBoard.ChessBoard.Util.ChessPosStore;
 //TODO Just import change to white class
 import ChessEngine.Util.*;
 import Common.Plane;
@@ -255,7 +255,7 @@ public class ChessBoardState extends GameState {
     }
 
     @Override
-    public Plane[][] ConvertToNeuralNetInput() {
+    public Plane[][] convertToNeuralNetInput() {
         return new Plane[0][];
     }
 
@@ -265,7 +265,7 @@ public class ChessBoardState extends GameState {
     }
 
     @Override
-    public GameState CreateNewState() {
+    public GameState createNewState() {
         return null;
     }
 

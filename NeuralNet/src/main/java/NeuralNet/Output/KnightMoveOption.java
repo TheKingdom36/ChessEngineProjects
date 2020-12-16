@@ -1,7 +1,7 @@
 package NeuralNet.Output;
 
 
-import ChessBoard.Models.Position;
+import GameBoard.ChessBoard.Models.Position;
 
 public class KnightMoveOption extends MoveOption {
     public KnightMoveOption(Position position, Position direction) {

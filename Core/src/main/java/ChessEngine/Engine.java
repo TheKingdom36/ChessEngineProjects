@@ -1,9 +1,9 @@
 package ChessEngine;
 
-import ChessBoard.Enums.Color;
-import ChessBoard.Moves.ChessMove;
+import GameBoard.ChessBoard.Enums.Color;
+import GameBoard.ChessBoard.Moves.ChessMove;
 import Common.Plane;
-import MontoCarlo.MontoCarloTree;
+import MontoCarlo.MonteCarloTree;
 import NeuralNet.Interfaces.INeuralNetwork;
 import ChessEngine.Util.*;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Engine {
     INeuralNetwork nn;
-    MontoCarloTree mcst;
+    MonteCarloTree mcst;
 
     public ChessMove FindBestMove(ChessBoardState chessBoardState){
 
