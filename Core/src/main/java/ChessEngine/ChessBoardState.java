@@ -1,6 +1,9 @@
 package ChessEngine;
 
 
+import GameBoard.ChessBoard.Enums.Type;
+import GameBoard.ChessBoard.Moves.NormalPromotionChessMove;
+import GameBoard.ChessBoard.Moves.TakePromotionChessMove;
 import GameBoard.Common.Interfaces.Move;
 import GameBoard.ChessBoard.Enums.Color;
 import GameBoard.ChessBoard.Models.ChessBoard;
@@ -12,15 +15,18 @@ import GameBoard.ChessBoard.Util.ChessPosStore;
 import ChessEngine.Util.*;
 import Common.Plane;
 import MontoCarlo.GameState;
-
+import lombok.Getter;
+import lombok.Setter;
 import java.util.List;
 
 /**
  * Used to store board and metadata on the board
  */
+@Getter
+@Setter
 public class ChessBoardState extends GameState {
 
-    private ChessBoard chessBoard;
+    private ChessBoard Board;
     private Color playerColor;
     private boolean CastleQueenSide;
     private boolean CastleKingSide;
@@ -29,6 +35,10 @@ public class ChessBoardState extends GameState {
     private int noProgressCount;
     private int totalMoveCount;
 
+
+    //The first move in this state
+    private ChessMove stateMove;
+
     public ChessBoardState(){
 
     }
@@ -36,7 +46,7 @@ public class ChessBoardState extends GameState {
 
 
     public ChessBoardState(ChessBoardState chessBoardState){
-        this.chessBoard = chessBoardState.getBoard().Copy();
+        this.Board = chessBoardState.getBoard().Copy();
         this.playerColor = chessBoardState.getPlayerColor();
         this.CastleQueenSide = chessBoardState.isCastleQueenSide();
         this.CastleKingSide = chessBoardState.isCastleKingSide();
@@ -47,32 +57,42 @@ public class ChessBoardState extends GameState {
     }
 
     public ChessBoardState(ChessBoard chessBoard, Color playerColor) {
+        this.Board = chessBoard.Copy();
+        this.playerColor = playerColor;
+
         Color opponent;
         if(playerColor == Color.White){
-            this.chessBoard = chessBoard.Copy();
             opponent = Color.Black;
         }else {
-            this.chessBoard = ConvertBoardToWhite.Convert(chessBoard.Copy());
             opponent = Color.White;
         }
-        this.chessBoard = chessBoard;
-        this.playerColor = playerColor;
+
+
+
 
         //Check if castling is available
         List<ChessMove> castleChessMoves = CastleCheck.Check(chessBoard, chessBoard.getMoveLog(),this.getPlayerColor());
         for(ChessMove castlem: castleChessMoves){
-                if(((CastleChessMove)castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(0,0))==1){
-                    CastleQueenSide = true;
-                }else if(((CastleChessMove)castlem).getFrom().compareTo(ChessPosStore.getPostion(0,7))==1){
-                    CastleKingSide = true;
+            if (playerColor == Color.White) {
+                if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(0, 0)) == 1) {
+                    OppCastleQueenSide = true;
+                } else if (((CastleChessMove) castlem).getFrom().compareTo(ChessPosStore.getPostion(0, 7)) == 1) {
+                    OppCastleKingSide = true;
                 }
+            } else {
+                if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(7, 0)) == 1) {
+                    OppCastleQueenSide = true;
+                } else if (((CastleChessMove) castlem).getFrom().compareTo(ChessPosStore.getPostion(7, 7)) == 1) {
+                    OppCastleKingSide = true;
+                }
+            }
         }
 
         castleChessMoves.clear();
 
 
         //Check if Opponent castling is available
-        castleChessMoves = CastleCheck.Check(getBoard(), chessBoard.getMoveLog(), opponent);
+        castleChessMoves = CastleCheck.Check((ChessBoard) getBoard(), chessBoard.getMoveLog(), opponent);
         for (ChessMove castlem : castleChessMoves) {
             if (opponent == Color.White) {
                 if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(0, 0)) == 1) {
@@ -150,7 +170,7 @@ public class ChessBoardState extends GameState {
 
 
         //Check if Opponent castling is available
-        castleChessMoves = CastleCheck.Check(getBoard(), chessBoard.getMoveLog(), opponent);
+        castleChessMoves = CastleCheck.Check(getBoard(), Board.getMoveLog(), opponent);
         for (ChessMove castlem : castleChessMoves) {
             if (opponent == Color.White) {
                 if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(0, 0)) == 1) {
@@ -190,87 +210,109 @@ public class ChessBoardState extends GameState {
         }
     }
 
-    public ChessBoard getBoard() {
-        return chessBoard;
-    }
 
-    public void setBoard(ChessBoard chessBoard) {
-        this.chessBoard = chessBoard;
-    }
+    @Override
+    public Plane[] convertToNeuralNetInput() {
 
-    public Color getPlayerColor() {
-        return playerColor;
-    }
+        return ChessBoardToNNInputConverter.ConvertChessBoardToInput(this);
 
-    public void setPlayerColor(Color playerColor) {
-        this.playerColor = playerColor;
-    }
-
-    public int getNoProgressCount() {
-        return noProgressCount;
-    }
-
-    public void setNoProgressCount(int noProgressCount) {
-        this.noProgressCount = noProgressCount;
-    }
-
-    public int getTotalMoveCount() {
-        return totalMoveCount;
-    }
-
-    public void setTotalMoveCount(int totalMoveCount) {
-        this.totalMoveCount = totalMoveCount;
-    }
-
-    public boolean isCastleQueenSide() {
-        return CastleQueenSide;
-    }
-
-    public void setCastleQueenSide(boolean castleQueenSide) {
-        CastleQueenSide = castleQueenSide;
-    }
-
-    public boolean isCastleKingSide() {
-        return CastleKingSide;
-    }
-
-    public void setCastleKingSide(boolean castleKingSide) {
-        CastleKingSide = castleKingSide;
-    }
-
-    public boolean isOppCastleQueenSide() {
-        return OppCastleQueenSide;
-    }
-
-    public void setOppCastleQueenSide(boolean oppCastleQueenSide) {
-        OppCastleQueenSide = oppCastleQueenSide;
-    }
-
-    public boolean isOppCastleKingSide() {
-        return OppCastleKingSide;
-    }
-
-    public void setOppCastleKingSide(boolean oppCastleKingSide) {
-        OppCastleKingSide = oppCastleKingSide;
     }
 
     @Override
-    public Plane[][] convertToNeuralNetInput() {
-        return new Plane[0][];
+    public List<ChessMove> getAllAvailableMoves() {
+        return Board.GetAllAvailableMoves(playerColor);
+    }
+
+
+
+    @Override
+    public GameState createNewState(Move move) {
+        ChessBoardState newChessBoardState = new ChessBoardState(this);
+        newChessBoardState.setStateMove((ChessMove)move);
+        newChessBoardState.Board.UpdateBoard((ChessMove)move);
+        return newChessBoardState;
+
     }
 
     @Override
-    public <MoveType extends Move> List<MoveType> getAllAvailableMoves() {
-        return null;
+    public ChessBoardState createNewState() {
+        return new ChessBoardState(this);
     }
 
     @Override
-    public GameState createNewState() {
-        return null;
+    public int getCurrentPlayerID() {
+        if(playerColor==Color.Black){
+            return 1;
+        }else{
+            return 0;
+        }
     }
 
     @Override
-    public void NextPlayer() {
+    public ChessMove getMove() {
+
+        return stateMove;
+    }
+
+    @Override
+    public int getMoveID() {
+
+
+            List<MoveOption> moveOptions = AllPieceMoveOptions.getMoveOptions();
+
+            for (int i = 0; i < moveOptions.size(); i++) {
+                MoveOption moveOption = moveOptions.get(i);
+
+                if (moveOption instanceof QueenMoveOption) {
+
+                    if (stateMove.getFrom().compareTo(moveOption.getPiecePos()) == 0 &&
+                            (stateMove.getTo().getX() - stateMove.getFrom().getX()) == moveOption.getDirection().getX() &&
+                            (stateMove.getTo().getY() - stateMove.getFrom().getY()) == moveOption.getDirection().getY()
+                    ) {
+
+                        int higher;
+                        if (Math.abs(stateMove.getTo().getX() - stateMove.getFrom().getX()) > Math.abs(stateMove.getTo().getY() - stateMove.getFrom().getY())) {
+
+                            higher = Math.abs(stateMove.getTo().getX() - stateMove.getFrom().getX());
+                        } else {
+
+
+                            higher = Math.abs(stateMove.getTo().getY() - stateMove.getFrom().getY());
+                        }
+
+                        if (higher == ((QueenMoveOption) moveOption).getDistanceFromPiecePos()) {
+                            return i;
+                        }
+                    }
+                } else if (moveOption instanceof KnightMoveOption) {
+                    if (stateMove.getFrom().compareTo(moveOption.getPiecePos()) == 0 && stateMove.getChessPiece().getType() == Type.Knight) {
+                        if ((stateMove.getTo().getX() - stateMove.getFrom().getX()) == moveOption.getDirection().getX() &&
+                                (stateMove.getTo().getY() - stateMove.getFrom().getY()) == moveOption.getDirection().getY()) {
+                          return i;
+
+                        }
+                    }
+                } else if (moveOption instanceof PawnPromotionMoveOption) {
+                    if (stateMove.getFrom().compareTo(moveOption.getPiecePos()) == 0 && (stateMove instanceof NormalPromotionChessMove || stateMove instanceof TakePromotionChessMove) && stateMove.getChessPiece().getType() == Type.Pawn) {
+                        if ((stateMove.getTo().getX() - stateMove.getFrom().getX()) == moveOption.getDirection().getX() &&
+                                (stateMove.getTo().getY() - stateMove.getFrom().getY()) == moveOption.getDirection().getY()) {
+
+                            return i;
+                        }
+                    }
+
+                }
+
+            }
+
+
+        return -1;
+    }
+
+    @Override
+    public void nextPlayer() {
 
     }
+
+
 }

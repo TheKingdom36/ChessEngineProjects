@@ -2,3 +2,11 @@ dependencies {
     implementation project(':Board')
     implementation project(':Common')
 }
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}

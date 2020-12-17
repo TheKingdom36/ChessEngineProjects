@@ -1,9 +1,8 @@
 
 dependencies {
+    api project(':Common')
     implementation project(':Board')
-    implementation project(':MontoCarlo')
     implementation project(':NeuralNet')
-    implementation project(':Common')
-
+    implementation project(':MontoCarlo')
 }
 

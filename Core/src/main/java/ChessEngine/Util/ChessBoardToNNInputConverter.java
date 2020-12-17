@@ -44,7 +44,7 @@ import Common.Plane;
 /**
  * Used to transform a chessBoard into a stack of planes
  */
-public class ChessInputConverter {
+public class ChessBoardToNNInputConverter {
 
 
     public static Plane[] ConvertChessBoardToInput(ChessBoardState chessBoardState) {

@@ -1,10 +1,9 @@
-package NNExamples;
+package NeuralNet.NNExamples;
 
 import NeuralNet.Models.Kernel;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Random;
 
 public class CNN3LayerNetWeights implements NeuralNet.Interfaces.INetworkWeights {
@@ -62,12 +61,12 @@ public class CNN3LayerNetWeights implements NeuralNet.Interfaces.INetworkWeights
     }
 
     public CNN3LayerNetWeights(Boolean random){
-        Conv1Kernels = intializeKernels(10,3,3,21);
-        Conv2Kernels = intializeKernels(10,3,3,10);
-        FCKernels = intializeKernels(1,20,640,1);
-        outputKernels = intializeKernels(1,20,20,1);
-        policyHeadKernels = intializeKernels(1,20,20,1);
-        valueHeadKernels = intializeKernels(1,1,20,1);
+        Conv1Kernels = initializeKernels(10,3,3,21);
+        Conv2Kernels = initializeKernels(10,3,3,10);
+        FCKernels = initializeKernels(1,20,640,1);
+        outputKernels = initializeKernels(1,20,20,1);
+        policyHeadKernels = initializeKernels(1,20,20,1);
+        valueHeadKernels = initializeKernels(1,1,20,1);
 
         batchNorm1BetaValues = new double[10];
         batchNorm2BetaValues = new double[10];
@@ -94,7 +93,7 @@ public class CNN3LayerNetWeights implements NeuralNet.Interfaces.INetworkWeights
         }
     }
 
-    private Kernel[] intializeKernels(int numOfKernels, int kernalWidth, int kernalHeight, int kernalDepth){
+    private Kernel[] initializeKernels(int numOfKernels, int kernalWidth, int kernalHeight, int kernalDepth){
 
         Kernel[] kernels = new Kernel[numOfKernels];
 

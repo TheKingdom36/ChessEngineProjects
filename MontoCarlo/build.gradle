@@ -3,3 +3,11 @@ dependencies {
     implementation project(':Common')
     implementation project(':NeuralNet')
 }
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}

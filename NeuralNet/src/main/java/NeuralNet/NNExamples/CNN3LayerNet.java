@@ -1,11 +1,12 @@
-package NNExamples;
+package NeuralNet.NNExamples;
 
 import Common.Plane;
 import NeuralNet.Interfaces.INetworkWeights;
 import NeuralNet.Interfaces.INeuralNetwork;
 import NeuralNet.Layers.*;
 import NeuralNet.Models.*;
-import NeuralNet.Output.AllPieceMoveOptions;
+import lombok.Getter;
+import lombok.Setter;
 
 
 import java.util.ArrayList;
@@ -13,6 +14,10 @@ import java.util.List;
 
 
 public class CNN3LayerNet implements INeuralNetwork {
+
+    @Getter
+    @Setter
+    int NumOfOutputNodes;
 
     InputLayer inputLayer;
     FullyConnectedLayer fcLayer1;
@@ -34,8 +39,9 @@ public class CNN3LayerNet implements INeuralNetwork {
 
     }
 
-    public CNN3LayerNet(CNN3LayerNetWeights CNN3LayerNetWeights){
+    public CNN3LayerNet(CNN3LayerNetWeights CNN3LayerNetWeights,int NumOfOutputNodes){
         this.configuration(CNN3LayerNetWeights);
+        this.NumOfOutputNodes = NumOfOutputNodes;
     }
 
     @Override
@@ -105,6 +111,12 @@ public class CNN3LayerNet implements INeuralNetwork {
         return nnOutputList;
     }
 
+    @Override
+    public NNOutput evaluate(Plane[] planes) {
+        Plane[][] tempPlanes = new Plane[1][planes.length];
+        return evaluate(tempPlanes).get(0);
+    }
+
 
     @Override
     public  void configuration (INetworkWeights weights) throws RuntimeException{
@@ -140,7 +152,7 @@ public class CNN3LayerNet implements INeuralNetwork {
         ReLULayer2 = new ReLULayer();
         ReLULayer3 = new ReLULayer();
 
-        outputLayer = new OutputLayer(20, AllPieceMoveOptions.getMoveOptions().size());
+        outputLayer = new OutputLayer(20, NumOfOutputNodes);
         outputLayer.setKernels(((CNN3LayerNetWeights) weights).getOutputKernels());
         outputLayer.setPolicyKernels(((CNN3LayerNetWeights) weights).getPolicyHeadKernels());
         outputLayer.setValueKernels(((CNN3LayerNetWeights) weights).getValueHeadKernels());

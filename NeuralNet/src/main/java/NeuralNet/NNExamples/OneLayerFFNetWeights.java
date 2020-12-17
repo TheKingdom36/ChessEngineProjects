@@ -1,4 +1,4 @@
-package NNExamples;
+package NeuralNet.NNExamples;
 
 import NeuralNet.Interfaces.INetworkWeights;
 

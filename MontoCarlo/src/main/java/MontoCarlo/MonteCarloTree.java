@@ -18,21 +18,9 @@ public class MonteCarloTree implements IMontoCarloTree {
     INeuralNetwork nn;
 
     public MonteCarloTree(INeuralNetwork neuralNetwork) {
-        if(State.getMovesOptions() == null){
-            State.setMovesOptions(AllPieceMoveOptions.getMoveOptions());
-        }
 
         nn = neuralNetwork;
 
-    }
-
-
-    public MonteCarloTree() {
-        if(State.getMovesOptions() == null){
-            State.setMovesOptions(AllPieceMoveOptions.getMoveOptions());
-        }
-
-        nn = new BasicNeuralNetwork();
     }
 
 
@@ -77,7 +65,7 @@ public class MonteCarloTree implements IMontoCarloTree {
         long end = start + searchTime;
 
 
-        //set Up root of MontoCarlo.tree
+        //set Up root of MonteCarlo.tree
         Tree tree = new Tree();
         Node rootNode = tree.getRoot();
         rootNode.setState(new State(gameState));
@@ -99,7 +87,7 @@ public class MonteCarloTree implements IMontoCarloTree {
 
 
         //final calculation of uct values to be returned as the generated policy
-        double[] genPolicy = new double[State.getMovesOptions().size()];
+        double[] genPolicy = new double[nn.getNumOfOutputNodes()];
         double genPolicyTotal=0;
 
         for(Node child: rootNode.getChildArray()){
@@ -120,7 +108,7 @@ public class MonteCarloTree implements IMontoCarloTree {
 
     }
 
-    private void MCSTProcess(String playerID, long endTime, Node rootNode) {
+    private void MCSTProcess(int playerID, long endTime, Node rootNode) {
         NNOutput nnOutput;
 
 
@@ -136,7 +124,7 @@ public class MonteCarloTree implements IMontoCarloTree {
             expandNode(promisingNode);
 
             // Phase 3 - Neural Network evaluation
-            nnOutput = nn.evaluate(promisingNode.getState().getGameState().convertToNeuralNetInput()).get(0);
+            nnOutput = nn.evaluate(promisingNode.getState().getGameState().convertToNeuralNetInput());
             AssignProbabilities(promisingNode, nnOutput.getProbabilities());
 
 
@@ -182,12 +170,12 @@ public class MonteCarloTree implements IMontoCarloTree {
 
     }
 
-    private void backPropagation(Node nodeToExplore, String playerID, NNOutput nnOutput) {
+    private void backPropagation(Node nodeToExplore, int playerID, NNOutput nnOutput) {
         Node tempNode = nodeToExplore;
         while (tempNode != null) {
 
             tempNode.getState().incrementVisit();
-            if (tempNode.getState().getGameState().getCurrentPlayerID().equals(playerID))
+            if (tempNode.getState().getGameState().getCurrentPlayerID()== playerID)
                 tempNode.getState().updateWinScore(nnOutput.getWin_score());
             tempNode = tempNode.getParent();
         }

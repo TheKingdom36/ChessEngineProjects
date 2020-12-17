@@ -1,4 +1,4 @@
-package NeuralNet.Output;
+package ChessEngine;
 
 
 import GameBoard.ChessBoard.Enums.Type;

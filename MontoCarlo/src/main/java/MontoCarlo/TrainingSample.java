@@ -10,9 +10,9 @@ public class TrainingSample {
     private Board board;
     private double[] policy;
     private int value;
-    private String playerID;
+    private int playerID;
 
-    public TrainingSample(Board board, double[] policy, int value, String playerID){
+    public TrainingSample(Board board, double[] policy, int value, int playerID){
         this.board = board;
         this.policy= policy;
         this.value = value;
@@ -49,11 +49,11 @@ public class TrainingSample {
         this.value = value;
     }
 
-    public String getPlayerID() {
+    public int getPlayerID() {
         return playerID;
     }
 
-    public void setPlayerID(String playerID) {
+    public void setPlayerID(int playerID) {
         this.playerID = playerID;
     }
 

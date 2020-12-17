@@ -1,4 +1,4 @@
-package NNExamples;
+package NeuralNet.NNExamples;
 
 import NeuralNet.Interfaces.INetworkWeights;
 import NeuralNet.Interfaces.INeuralNetwork;
@@ -20,6 +20,11 @@ public class OneLayerFFNet implements INeuralNetwork {
     }
 
     @Override
+    public NNOutput evaluate(Plane[] planes) {
+        return null;
+    }
+
+    @Override
     public Layer getInputLayer() {
         return null;
     }
@@ -37,5 +42,15 @@ public class OneLayerFFNet implements INeuralNetwork {
     @Override
     public CNN3LayerNetWeights getNetworkWeights() {
         return null;
+    }
+
+    @Override
+    public void setNumOfOutputNodes(int numOfOutputNodes) {
+
+    }
+
+    @Override
+    public int getNumOfOutputNodes() {
+        return 0;
     }
 }

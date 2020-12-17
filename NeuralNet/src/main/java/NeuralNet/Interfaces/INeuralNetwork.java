@@ -5,7 +5,7 @@ package NeuralNet.Interfaces;
 import Common.Plane;
 import NeuralNet.Layers.Layer;
 import NeuralNet.Models.NNOutput;
-import NNExamples.CNN3LayerNetWeights;
+import NeuralNet.NNExamples.CNN3LayerNetWeights;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,6 +16,8 @@ public interface INeuralNetwork {
 
     List<NNOutput> evaluate(Plane[][] planes);
 
+    NNOutput evaluate(Plane[] planes);
+
     Layer getInputLayer();
 
     void configuration(INetworkWeights weights);
@@ -23,4 +25,8 @@ public interface INeuralNetwork {
     CNN3LayerNetWeights updateWeights();
 
     CNN3LayerNetWeights getNetworkWeights();
+
+    void setNumOfOutputNodes(int numOfOutputNodes);
+
+    int getNumOfOutputNodes();
 }

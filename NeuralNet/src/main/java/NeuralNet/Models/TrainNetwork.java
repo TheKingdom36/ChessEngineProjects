@@ -1,6 +1,6 @@
 package NeuralNet.Models;
 
-import NNExamples.CNN3LayerNetWeights;
+import NeuralNet.NNExamples.CNN3LayerNetWeights;
 import NeuralNet.Interfaces.INeuralNetwork;
 import NeuralNet.Training.TrainingData;
 

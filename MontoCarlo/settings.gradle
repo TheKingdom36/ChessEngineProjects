@@ -1,0 +1,3 @@
+rootProject.name = 'MontoCarlo'
+
+include ':Board',':Common',':NeuralNet'
