@@ -33,6 +33,8 @@ subprojects {
 
         testCompileOnly 'org.projectlombok:lombok:1.18.16'
         testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+        testImplementation 'junit:junit:4.13'
     }
 
     test {

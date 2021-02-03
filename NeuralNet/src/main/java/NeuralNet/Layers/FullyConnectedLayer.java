@@ -6,12 +6,9 @@ import Common.Plane;
 public class FullyConnectedLayer extends Layer {
     Kernel[] weights;
     int numOfHiddenNodes;
-    int depthOfplanes;
-    Plane[] inputplanesPerBatches;
+    int depthOfPlanes;
+    Plane[] inputPlanesPerBatches;
     boolean connectedToConvLayer;
-    public Kernel[] getKernals() {
-        return weights;
-    }
 
     public void setKernels(Kernel[] weights) {
         this.weights = weights;
@@ -19,7 +16,7 @@ public class FullyConnectedLayer extends Layer {
 
     public FullyConnectedLayer(int numOfHiddenNodes){
         this.numOfHiddenNodes = numOfHiddenNodes;
-        depthOfplanes = 1;
+        depthOfPlanes = 1;
     }
 
 
@@ -39,7 +36,7 @@ public class FullyConnectedLayer extends Layer {
         }
 
 
-        inputplanesPerBatches = new Plane[Layer.getBatchSize()];
+        inputPlanesPerBatches = new Plane[Layer.getBatchSize()];
         for(int batchElement = 0; batchElement< Layer.getBatchSize(); batchElement++){
             outputPlanes[batchElement][0] = CalculationPerBatchElement(batchElement);
         }
@@ -52,7 +49,7 @@ public class FullyConnectedLayer extends Layer {
         Plane returnplane = new Plane(numOfHiddenNodes,1);
         Plane inputplane = Plane.ConvertPlanesToPlane(getPreviousLayer().getOutputPlanes()[batchElement],getPreviousLayer().getOutputPlanes()[batchElement].length*getPreviousLayer().getOutputPlanes()[batchElement][0].getWidth()*getPreviousLayer().getOutputPlanes()[batchElement][0].getHeight(),1);
 
-        inputplanesPerBatches[batchElement] = inputplane;
+        inputPlanesPerBatches[batchElement] = inputplane;
 
 
         double tempValue;
@@ -113,7 +110,7 @@ public class FullyConnectedLayer extends Layer {
                 for(int batchElement = 0; batchElement< Layer.getBatchSize(); batchElement++) {
 
                     for(int errorWidth=0;errorWidth<errors[batchElement][0].length;errorWidth++){
-                        double cal = weights[0].getValues()[0][errorWidth][height] - errors[batchElement][0][errorWidth][0]* inputplanesPerBatches[batchElement].getValues()[width][0];
+                        double cal = weights[0].getValues()[0][errorWidth][height] - errors[batchElement][0][errorWidth][0]* inputPlanesPerBatches[batchElement].getValues()[width][0];
                         this.weights[0].setValue(0,width,height,cal);
                     }
                 }

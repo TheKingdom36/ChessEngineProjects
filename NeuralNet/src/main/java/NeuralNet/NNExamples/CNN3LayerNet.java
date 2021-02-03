@@ -33,7 +33,7 @@ public class CNN3LayerNet implements INeuralNetwork {
     ReLULayer ReLULayer2 ;
     ReLULayer ReLULayer3;
 
-    OutputLayer outputLayer;
+    OutputLayerWithValueAndPolicyHead outputLayerWithValueAndPolicyHead;
 
     public CNN3LayerNet(){
 
@@ -56,18 +56,23 @@ public class CNN3LayerNet implements INeuralNetwork {
 
         convLayer1.setPreviousLayer(inputLayer);
 
-        outputLayer.calculateOutputPlanes();
-        Plane[][] policy= outputLayer.getPolicy();
+        outputLayerWithValueAndPolicyHead.calculateOutputPlanes();
+        Plane[][] policy= outputLayerWithValueAndPolicyHead.getPolicy();
 
         double[] probs = new double[policy[0][0].getWidth()];
         for(int i=0;i<policy[0][0].getWidth();i++){
             probs[i] = policy[0][0].getValues()[i][0];
         }
 
+
+
         nnOutput.setProbabilities(probs);
-        nnOutput.setWin_score(outputLayer.getValues()[0][0].getValues()[0][0]);
+        nnOutput.setWin_score(outputLayerWithValueAndPolicyHead.getValues()[0][0].getValues()[0][0]);
 
         return nnOutput;
+
+
+
     }
 
 
@@ -86,10 +91,10 @@ public class CNN3LayerNet implements INeuralNetwork {
 
         convLayer1.setPreviousLayer(inputLayer);
 
-        outputLayer.calculateOutputPlanes();
+        outputLayerWithValueAndPolicyHead.calculateOutputPlanes();
 
-        Plane[][] policys= outputLayer.getPolicy();
-        Plane[][] values = outputLayer.getValues();
+        Plane[][] policys= outputLayerWithValueAndPolicyHead.getPolicy();
+        Plane[][] values = outputLayerWithValueAndPolicyHead.getValues();
 
         double[] tempProbs;
         NNOutput tempNNOutput;
@@ -152,10 +157,10 @@ public class CNN3LayerNet implements INeuralNetwork {
         ReLULayer2 = new ReLULayer();
         ReLULayer3 = new ReLULayer();
 
-        outputLayer = new OutputLayer(20, NumOfOutputNodes);
-        outputLayer.setKernels(((CNN3LayerNetWeights) weights).getOutputKernels());
-        outputLayer.setPolicyKernels(((CNN3LayerNetWeights) weights).getPolicyHeadKernels());
-        outputLayer.setValueKernels(((CNN3LayerNetWeights) weights).getValueHeadKernels());
+        outputLayerWithValueAndPolicyHead = new OutputLayerWithValueAndPolicyHead(20, NumOfOutputNodes);
+        outputLayerWithValueAndPolicyHead.setKernels(((CNN3LayerNetWeights) weights).getOutputKernels());
+        outputLayerWithValueAndPolicyHead.setPolicyKernels(((CNN3LayerNetWeights) weights).getPolicyHeadKernels());
+        outputLayerWithValueAndPolicyHead.setValueKernels(((CNN3LayerNetWeights) weights).getValueHeadKernels());
 
         convLayer1.setNextLayer(batchNormLayer1);
 
@@ -181,9 +186,9 @@ public class CNN3LayerNet implements INeuralNetwork {
         batchNormLayer3.setNextLayer(ReLULayer3);
 
         ReLULayer3.setPreviousLayer(batchNormLayer3);
-        ReLULayer3.setNextLayer(outputLayer);
+        ReLULayer3.setNextLayer(outputLayerWithValueAndPolicyHead);
 
-        outputLayer.setPreviousLayer(ReLULayer3);
+        outputLayerWithValueAndPolicyHead.setPreviousLayer(ReLULayer3);
 
 
     }
@@ -197,7 +202,7 @@ public class CNN3LayerNet implements INeuralNetwork {
     public synchronized void AssignNewWeights(CNN3LayerNetWeights CNN3LayerNetWeights){
         convLayer1.setKernels(CNN3LayerNetWeights.getConv1Kernels());
         convLayer2.setKernels(CNN3LayerNetWeights.getConv2Kernels());
-        outputLayer.setKernels(CNN3LayerNetWeights.getOutputKernels());
+        outputLayerWithValueAndPolicyHead.setKernels(CNN3LayerNetWeights.getOutputKernels());
         fcLayer1.setKernels(CNN3LayerNetWeights.getFCKernels());
         batchNormLayer1.setBeta(CNN3LayerNetWeights.getBatchNorm1BetaValues());
         batchNormLayer2.setBeta(CNN3LayerNetWeights.getBatchNorm2BetaValues());
@@ -212,7 +217,7 @@ public class CNN3LayerNet implements INeuralNetwork {
     public CNN3LayerNetWeights updateWeights() {
         convLayer1.UpdateWeights();
         convLayer2.UpdateWeights();
-        outputLayer.UpdateWeights();
+        outputLayerWithValueAndPolicyHead.UpdateWeights();
         fcLayer1.UpdateWeights();
         batchNormLayer1.UpdateWeights();
         batchNormLayer2.UpdateWeights();
@@ -228,7 +233,7 @@ public class CNN3LayerNet implements INeuralNetwork {
         CNN3LayerNetWeights.setConv1Kernels(convLayer1.getKernels());
         CNN3LayerNetWeights.setConv2Kernels(convLayer2.getKernels());
         CNN3LayerNetWeights.setFCKernels(fcLayer1.getKernels());
-        CNN3LayerNetWeights.setOutputKernels(outputLayer.getKernels());
+        CNN3LayerNetWeights.setOutputKernels(outputLayerWithValueAndPolicyHead.getKernels());
         CNN3LayerNetWeights.setBatchNorm1GammaValues(batchNormLayer1.getGamma());
         CNN3LayerNetWeights.setBatchNorm2GammaValues(batchNormLayer2.getGamma());
         CNN3LayerNetWeights.setBatchNorm3GammaValues(batchNormLayer3.getGamma());

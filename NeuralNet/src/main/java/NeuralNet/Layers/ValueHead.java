@@ -89,7 +89,7 @@ public class ValueHead extends FullyConnectedLayer {
                 for(int width=0;width<this.weights[0].getWidth();width++){
                     for(int height=0; height < this.weights[0].getHeight();height++){
                         for(int batchElement = 0; batchElement< Layer.getBatchSize(); batchElement++) {
-                            double cal = weights[kernelNum].getValues()[depth][width][height] - errors[batchElement][kernelNum][width][0]* inputplanesPerBatches[batchElement].getValues()[width][0];
+                            double cal = weights[kernelNum].getValues()[depth][width][height] - errors[batchElement][kernelNum][width][0]* inputPlanesPerBatches[batchElement].getValues()[width][0];
                             this.weights[kernelNum].setValue(depth,width,height,cal);
                         }
                     }
