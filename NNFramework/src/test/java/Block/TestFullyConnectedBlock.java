@@ -24,13 +24,12 @@ public class TestFullyConnectedBlock {
         UtilityMethods.PopulateDimStruct(weights,weightValues);
 
         FullyConnectedBlock FCBlock = new FullyConnectedBlock(input.getWidth(),3,new ReLU());
-        FCBlock.setWeights(weights);
-
+FCBlock.setWeights(weights);
         FCBlock.calculate(input);
 
         Dim3Struct expectedOutput = new Dim3Struct(3,1,1);
         ReLU relu = new ReLU();
-        double[] expectedValues = {3.28,5.28,7.47};
+        double[] expectedValues = {3.48,5.28,7.47};
         UtilityMethods.PopulateDimStruct(expectedOutput,expectedValues);
 
 

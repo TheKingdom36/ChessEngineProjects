@@ -16,4 +16,15 @@ public class MSE implements LossFunction {
         return endValue;
 
     }
+
+    @Override
+    public double[] calculateDerivative(double[] actualValues, double[] expectedValues) {
+        double[] derivativeValues  = new double[actualValues.length];
+
+        for(int i=0; i<actualValues.length;i++){
+            derivativeValues[i] = -1*(expectedValues[i]-actualValues[i]);
+        }
+
+        return derivativeValues;
+    }
 }

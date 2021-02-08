@@ -2,7 +2,12 @@ package NeuralNetwork.Block;
 
 public class ConvolutionalBlock extends WeightBlock{
     public ConvolutionalBlock(Dim3Struct neurons, Dim3Struct weights) {
-        super(neurons, weights);
+        super(neurons, weights,null);
+    }
+
+    @Override
+    protected void GenerateBlockWeights(Dim3Struct.Dims inputDims) {
+
     }
 
     @Override
@@ -11,7 +16,7 @@ public class ConvolutionalBlock extends WeightBlock{
     }
 
     @Override
-    protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas) {
+    protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas,Dim3Struct nextWeights) {
         return null;
     }
 

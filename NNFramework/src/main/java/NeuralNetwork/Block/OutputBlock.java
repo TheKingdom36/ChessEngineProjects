@@ -1,20 +1,46 @@
 package NeuralNetwork.Block;
 
+import NeuralNetwork.Block.Operations.BlockOperation;
 import NeuralNetwork.Exceptions.DimensionMismatch;
 
 import java.util.Arrays;
 
 public class OutputBlock extends WeightBlock {
     LossFunction lossFunction;
-
+    private double[] expectedArray;
     public OutputBlock(int numBlockNeurons, int numInputNeurons, LossFunction lossFunction){
-        super(new Dim3Struct(numBlockNeurons,1,1),new Dim3Struct(numInputNeurons,numBlockNeurons,1));
+        super(new Dim3Struct(numBlockNeurons,1,1),new Dim3Struct(numInputNeurons,numBlockNeurons,1),null);
         this.lossFunction = lossFunction;
+    }
+
+    public Dim3Struct calculate(Dim3Struct Input){
+        outputNeurons = Input.Copy();
+        inputNeurons = Input.Copy();
+
+        for(BlockOperation operation: preNeuronOperations){
+            outputNeurons = operation.doOp(outputNeurons);
+        }
+
+        outputNeurons = blockCalculation(outputNeurons);
+
+        neurons = outputNeurons.Copy();
+
+        for(BlockOperation operation: postNeuronOperations){
+            outputNeurons = operation.doOp(outputNeurons);
+        }
+
+        return outputNeurons;
+    }
+
+    @Override
+    protected void GenerateBlockWeights(Dim3Struct.Dims inputDims) {
+        weights = new Dim3Struct(neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getDepth(),1);
     }
 
 
     public double calculateLossFunc(double[] expectedArray){
         double[] actualArray = neurons.toArray();
+        this.expectedArray = expectedArray;
         double lossValue = 0;
         for(int i=0;i<actualArray.length;i = i+(neurons.getWidth()* neurons.getLength())){
             lossValue = lossFunction.calculate(Arrays.copyOfRange(actualArray,i,i+(neurons.getWidth()* neurons.getLength())-1),Arrays.copyOfRange(expectedArray,i,i+(neurons.getWidth()* neurons.getLength())-1));
@@ -55,11 +81,16 @@ public class OutputBlock extends WeightBlock {
 
     @Override
     protected Dim3Struct calculateWeightErrors(Dim3Struct nextBlockNeuronErrors) {
+//TODO Should be same as fully connected layer
+
         return null;
     }
 
     @Override
-    protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas) {
+    protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas,Dim3Struct nextWeights) {
+
+            lossFunction.calculateDerivative(outputNeurons.toArray(),expectedArray);
+
         return null;
     }
 }

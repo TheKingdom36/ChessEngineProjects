@@ -27,6 +27,10 @@ public class DataSet implements Serializable { // implements
     int sampleExpectedOutputSize;
 
 
+    public DataSet(){
+        samples = new ArrayList<>();
+    }
+
     //is for supervised?
     public boolean isForSupervised(){
         return forSupervised;

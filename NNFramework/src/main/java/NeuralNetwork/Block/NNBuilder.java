@@ -11,47 +11,64 @@ public class NNBuilder {
     WeightBlock lastBlock;
     boolean inputProvided=false;
 
-    public void addInput(Dim3Struct input){
-        neuralNetwork.setInput(input);
+    public NNBuilder(){
+        neuralNetwork = new NeuralNetwork<>();
+    }
+
+    public NNBuilder addInputBlock(Dim3Struct.Dims inputSize){
+        neuralNetwork.setInputBlock(new InputBlock(inputSize));
         inputProvided=true;
+        return this;
     }
-    public void addInput(double[] input){
-        neuralNetwork.setInput(new Dim3Struct(input.length,1,1));
-        inputProvided = true;
+    public NNBuilder addInputBlock(double[] input){
+        return addInputBlock(new Dim3Struct.Dims(input.length,1,1));
+
+    }
+
+    public NNBuilder provideLearningRule(LearningRule rule){
+        neuralNetwork.setLearningRule(rule);
+        return this;
     }
 
 
-    public void addOutputLayer(int numOfOutputNeurons,LossFunction lossFunction){
-
-
+    public NNBuilder addOutputLayer(int numOfOutputNeurons,LossFunction lossFunction){
 
         OutputBlock block = new OutputBlock(numOfOutputNeurons,lastBlock.getNeurons().totalNumOfValues(),lossFunction);
 
         if(lastBlock instanceof ConvolutionalBlock){
-            block.addToPreNeuronOperations(new FlattenOp(lastBlock.getNeurons().totalNumOfValues()));
+            block.addToPreNeuronOperations(new FlattenOp());
         }
 
         neuralNetwork.setOutputBlock(block);
         lastBlock=  block;
+        return this;
     }
 
-    public NNBuilder addFullyConnectedBlock(ActivationFunction function) {
-//TODO change to deal with different block types
-        FullyConnectedBlock block = new FullyConnectedBlock(numberOfInput,lastBlock.getNeurons().totalNumOfValues(),function);
+    public NNBuilder addFullyConnectedBlock(int numOfNeurons, ActivationFunction function) {
+        FullyConnectedBlock block;
 
 
-        if(lastBlock == null && inputProvided == true){
+        if (lastBlock == null && inputProvided == true) {
             //only input has been provided
-            if(){
+            block = new FullyConnectedBlock(neuralNetwork.getInputBlock().getNeurons().totalNumOfValues(), numOfNeurons, function);
+        } else {
+            block = new FullyConnectedBlock(lastBlock.getOutputNeurons().totalNumOfValues(), numOfNeurons, function);
+        }
 
-            }
-        }else if(lastBlock instanceof ConvolutionalBlock){
-            block.addToPreNeuronOperations(new FlattenOp(lastBlock.totalNumOfValues()));
+        if (lastBlock instanceof ConvolutionalBlock) {
+            block.addToPreNeuronOperations(new FlattenOp());
         }
 
         lastBlock = block;
         neuralNetwork.addBlock(block);
 
+        return this;
+    }
+
+
+
+    public NNBuilder addWeights(Dim3Struct weights){
+        lastBlock.setWeights(weights);
         return this;
     }
 
@@ -65,8 +82,19 @@ public class NNBuilder {
         return this;
     }
 
-    public NeuralNetwork getNeuralNetwork() {
-        return null;
+    public NNBuilder setWeights(Dim3Struct weights){
+        lastBlock.setWeights(weights);
+        return this;
+    }
+
+    public NeuralNetwork build() {
+        if(neuralNetwork.getLearningRule() == null){
+            neuralNetwork.setLearningRule(new SGD());
+        }
+
+        neuralNetwork.setUp();
+
+        return neuralNetwork;
     }
 
 
