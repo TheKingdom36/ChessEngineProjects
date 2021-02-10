@@ -14,20 +14,25 @@ public class OutputBlock extends WeightBlock {
     }
 
     public Dim3Struct calculate(Dim3Struct Input){
+
         outputNeurons = Input.Copy();
         inputNeurons = Input.Copy();
+        //System.out.println(outputNeurons.toString());
+
 
         for(BlockOperation operation: preNeuronOperations){
             outputNeurons = operation.doOp(outputNeurons);
         }
+        //System.out.println(outputNeurons.toString());
+        outputNeurons = blockCalculation(outputNeurons).Copy();
 
-        outputNeurons = blockCalculation(outputNeurons);
 
-        neurons = outputNeurons.Copy();
-
+        //System.out.println(neurons.toString());
         for(BlockOperation operation: postNeuronOperations){
             outputNeurons = operation.doOp(outputNeurons);
         }
+
+        //System.out.println(outputNeurons.toString());
 
         return outputNeurons;
     }
@@ -80,17 +85,25 @@ public class OutputBlock extends WeightBlock {
 
 
     @Override
-    protected Dim3Struct calculateWeightErrors(Dim3Struct nextBlockNeuronErrors) {
-//TODO Should be same as fully connected layer
+    protected Dim3Struct calculateWeightErrors(Dim3Struct Deltas) {
 
-        return null;
+        this.weightErrors = new Dim3Struct(weights.getDims());
+
+        for(int weightErrorWidth=0;weightErrorWidth<weightErrors.getWidth();weightErrorWidth++) {
+            for(int weightErrorLen=0;weightErrorLen<weightErrors.getLength();weightErrorLen++) {
+                weightErrors.getValues()[weightErrorWidth][weightErrorLen][0] = Deltas.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0];
+            }
+        }
+
+        return weightErrors;
     }
 
     @Override
     protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas,Dim3Struct nextWeights) {
+            neuronErrors = new Dim3Struct(neurons.getDims());
+            neuronErrors.populate(lossFunction.calculateDerivative(outputNeurons.toArray(),expectedArray));
+            //System.out.println("Neuron Errors" + neuronErrors.toString());
 
-            lossFunction.calculateDerivative(outputNeurons.toArray(),expectedArray);
-
-        return null;
+        return neuronErrors;
     }
 }

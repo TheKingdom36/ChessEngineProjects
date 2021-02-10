@@ -13,7 +13,7 @@ public class MSE implements LossFunction {
              endValue += Math.pow(expectedValues[i]-actualValues[i],2);
         }
 
-        return endValue;
+        return endValue/actualValues.length;
 
     }
 
@@ -22,7 +22,7 @@ public class MSE implements LossFunction {
         double[] derivativeValues  = new double[actualValues.length];
 
         for(int i=0; i<actualValues.length;i++){
-            derivativeValues[i] = -1*(expectedValues[i]-actualValues[i]);
+            derivativeValues[i] = (-1*(expectedValues[i]-actualValues[i]))/actualValues.length;
         }
 
         return derivativeValues;

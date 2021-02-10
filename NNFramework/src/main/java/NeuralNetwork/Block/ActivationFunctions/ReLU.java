@@ -6,6 +6,7 @@ public class ReLU implements ActivationFunction {
     @Override
     public double getOutput(double value) {
         if(value>0){
+
             return value;
         }else{
             return 0;

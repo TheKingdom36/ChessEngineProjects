@@ -44,10 +44,10 @@ lossPerSample.clear();
             neuralNetwork.calculateWeightErrors();
 
             //update weights using SGD method
-            neuralNetwork.updateWeights((double weightValue, double weightDelta)->(weightValue + this.learningRate*weightDelta));
+            neuralNetwork.updateWeights((double weightValue, double weightDelta)->(weightValue - this.learningRate*weightDelta));
 
             //set weight and neuron errors to zero
-            neuralNetwork.resetWeightErrors();
+            neuralNetwork.resetErrors();
         }
 
 

@@ -44,6 +44,7 @@ public class Dim3Struct {
             for(int j=0; j< length ; j++){
                 for(int k=0; k< depth ; k++){
                     values[i][j][k]= op.doOp(values[i][j][k]);
+
                 }
             }
         }
@@ -158,6 +159,16 @@ public class Dim3Struct {
 
     public Dims getDims(){
         return new Dims(width,length,depth);
+    }
+
+    public void clear() {
+        for(int k=0; k< depth ; k++){
+            for(int i=0; i< width ; i++){
+                for(int j=0; j< length ; j++){
+                   values[i][j][k]=0;
+                }
+            }
+        }
     }
 
     public static class Dims{

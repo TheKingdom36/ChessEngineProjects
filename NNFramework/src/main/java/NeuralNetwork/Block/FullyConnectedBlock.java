@@ -9,7 +9,6 @@ public class FullyConnectedBlock extends WeightBlock{
     private int numInputNeurons;
 
 
-
     @Override
     protected void GenerateBlockWeights(Dim3Struct.Dims inputDims) {
         weights = new Dim3Struct(neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getDepth(),1);
@@ -17,7 +16,7 @@ public class FullyConnectedBlock extends WeightBlock{
 
     @Override
     protected Dim3Struct calculateWeightErrors(Dim3Struct Deltas) {
-//TODO Check
+
 
         this.weightErrors = new Dim3Struct(weights.getDims());
 
@@ -27,12 +26,16 @@ public class FullyConnectedBlock extends WeightBlock{
             }
         }
 
-        return neuronErrors;
+        return weightErrors;
 
     }
 
     @Override
     protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas,Dim3Struct nextWeights) {
+
+        if(inputDeltas == null){
+            throw new RuntimeException("The parameter can not be null");
+        }
 
 
         this.neuronErrors = new Dim3Struct(outputNeurons.getDims());
@@ -40,7 +43,9 @@ public class FullyConnectedBlock extends WeightBlock{
 
             for(int neuronCount=0;neuronCount<neuronErrors.getWidth();neuronCount++) {
                 for (int inputDeltaCount = 0; inputDeltaCount < inputDeltas.getWidth(); inputDeltaCount++) {
-                    neuronErrors.getValues()[neuronCount][0][0] = inputDeltas.getValues()[inputDeltaCount][0][0]*nextWeights.getValues()[inputDeltaCount][neuronCount][0];
+                    neuronErrors.getValues()[neuronCount][0][0] += inputDeltas.getValues()[inputDeltaCount][0][0]*nextWeights.getValues()[inputDeltaCount][neuronCount][0];
+
+
                 }
             }
 
@@ -77,12 +82,16 @@ public class FullyConnectedBlock extends WeightBlock{
         }
 
         int blockNeuronsCount=0;
+
+        neurons.clear();
+
+
         for (int wghtWidth =0; wghtWidth <weights.getWidth(); wghtWidth++) {
             for (int wghtLength = 0; wghtLength < weights.getLength(); wghtLength++) {
 
-               // System.out.println(wghtLength+" "+ inputNeurons.getValues()[wghtLength][0][0]  +" "+weights.getValues()[wghtWidth][wghtLength][0]);
+               //System.out.println("Values " + wghtLength+" "+ inputNeurons.getValues()[wghtLength][0][0]  +" "+weights.getValues()[wghtWidth][wghtLength][0]);
                 neurons.getValues()[blockNeuronsCount][0][0] += inputNeurons.getValues()[wghtLength][0][0] * weights.getValues()[wghtWidth][wghtLength][0];
-               // System.out.println(neurons.getValues()[blockNeuronsCount][0][0]);
+                //System.out.println("Neuron " + neurons.getValues()[blockNeuronsCount][0][0]);
             }
             blockNeuronsCount++;
         }
@@ -90,6 +99,8 @@ public class FullyConnectedBlock extends WeightBlock{
         return neurons;
 
     }
+
+
 
 }
 

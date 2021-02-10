@@ -84,9 +84,19 @@ public class NeuralNetwork<L extends LearningRule> {
     }
 
     public void updateWeights(WeightUpdateRule rule) {
+        outputBlock.UpdateWeights(rule);
+
+        for(int i=0;i<Blocks.size();i++){
+            Blocks.get(i).UpdateWeights(rule);
+        }
+
     }
 
-    public void resetWeightErrors() {
+    public void resetErrors() {
+        outputBlock.resetErrors();
+        for(int i=0;i<Blocks.size();i++){
+            Blocks.get(i).resetErrors();
+        }
     }
 
     public void setUp() {

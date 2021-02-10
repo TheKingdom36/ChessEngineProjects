@@ -73,9 +73,9 @@ public abstract class WeightBlock extends Block{
         for(BlockOperation operation: preNeuronOperations){
              outputNeurons = operation.doOp(outputNeurons);
         }
-
+        System.out.println(weights.toString());
         outputNeurons = blockCalculation(outputNeurons);
-
+        //System.out.println(outputNeurons.toString());
         neurons = outputNeurons.Copy();
 
         for(BlockOperation operation: postNeuronOperations){
@@ -126,6 +126,21 @@ public abstract class WeightBlock extends Block{
 
     }
 
+    public void UpdateWeights(WeightUpdateRule rule){
+
+        System.out.println("Called");
+        for(int i=0;i<weights.getWidth();i++){
+            for(int j=0;j<weights.getLength();j++){
+                for(int k=0;k<weights.getDepth();k++){
+
+                    this.weights.getValues()[i][j][k] = rule.calculate(weights.getValues()[i][j][k],weightErrors.getValues()[i][j][k]);
+
+                }
+            }
+        }
+        System.out.println(this.getClass()+" "+weights.toString());
+    }
+
     protected void addToPreNeuronOperations(BlockOperation blockOperation){
         preNeuronOperations.add(blockOperation);
     }
@@ -140,5 +155,12 @@ public abstract class WeightBlock extends Block{
     protected abstract Dim3Struct blockCalculation(Dim3Struct Input);
 
 
+    public void resetErrors() {
 
+        weightErrors.clear();
+        neurons.clear();
+        neuronErrors.clear();
+        outputNeurons.clear();
+        inputNeurons.clear();
+    }
 }

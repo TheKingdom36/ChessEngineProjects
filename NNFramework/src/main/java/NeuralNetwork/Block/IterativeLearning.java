@@ -167,7 +167,6 @@ abstract public class IterativeLearning extends LearningRule implements
 
         while (!isStopped()) {
             beforeEpoch();
-            System.out.println("errpe");
             doLearningEpoch(trainingSet);
             this.currentIteration++;
             afterEpoch();
