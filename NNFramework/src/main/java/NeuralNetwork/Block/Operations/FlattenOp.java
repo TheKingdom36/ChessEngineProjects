@@ -6,13 +6,13 @@ public class FlattenOp extends BlockOperation{
 
 
     @Override
-    protected Dim3Struct blockOpCal(Dim3Struct input) {
+    public Dim3Struct doOp(Dim3Struct input) {
         //TODO
         return null;
     }
 
     @Override
-    public Dim3Struct blockOpCalDeltas(Dim3Struct inputDeltas) {
+    public Dim3Struct calculateDeltas(Dim3Struct inputDeltas) {
         //TODO
         return null;
     }

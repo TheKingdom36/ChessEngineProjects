@@ -5,11 +5,11 @@ import NeuralNetwork.Exceptions.DimensionMismatch;
 
 import java.util.Arrays;
 
-public class OutputBlock extends WeightBlock {
+public class OutputBlock extends WeightBlock<Dim3Struct> {
     LossFunction lossFunction;
     private double[] expectedArray;
     public OutputBlock(int numBlockNeurons, int numInputNeurons, LossFunction lossFunction){
-        super(new Dim3Struct(numBlockNeurons,1,1),new Dim3Struct(numInputNeurons,numBlockNeurons,1),null);
+        super(new Dim3Struct.Dims(numBlockNeurons,1,1),new Dim3Struct.Dims(numInputNeurons,1,1),new Dim3Struct(numInputNeurons,numBlockNeurons,1),null);
         this.lossFunction = lossFunction;
     }
 
@@ -17,45 +17,46 @@ public class OutputBlock extends WeightBlock {
 
         outputNeurons = Input.Copy();
         inputNeurons = Input.Copy();
-        //System.out.println(outputNeurons.toString());
 
+        neurons.clear();
 
         for(BlockOperation operation: preNeuronOperations){
             outputNeurons = operation.doOp(outputNeurons);
         }
-        //System.out.println(outputNeurons.toString());
         outputNeurons = blockCalculation(outputNeurons).Copy();
 
-
-        //System.out.println(neurons.toString());
         for(BlockOperation operation: postNeuronOperations){
             outputNeurons = operation.doOp(outputNeurons);
         }
-
-        //System.out.println(outputNeurons.toString());
 
         return outputNeurons;
     }
 
     @Override
-    protected void GenerateBlockWeights(Dim3Struct.Dims inputDims) {
+    protected void generateBlockWeights(Dim3Struct.Dims inputDims) {
         weights = new Dim3Struct(neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getDepth(),1);
+    }
+
+    @Override
+    public void updateWeights(WeightUpdateRule rule) {
+
     }
 
 
     public double calculateLossFunc(double[] expectedArray){
-        double[] actualArray = neurons.toArray();
+        double[] actualArray = outputNeurons.toArray();
+
         this.expectedArray = expectedArray;
         double lossValue = 0;
-        for(int i=0;i<actualArray.length;i = i+(neurons.getWidth()* neurons.getLength())){
-            lossValue = lossFunction.calculate(Arrays.copyOfRange(actualArray,i,i+(neurons.getWidth()* neurons.getLength())-1),Arrays.copyOfRange(expectedArray,i,i+(neurons.getWidth()* neurons.getLength())-1));
-        }
+
+        lossValue = lossFunction.calculate(actualArray,expectedArray);
+
         return lossValue;
     }
 
     @Override
     protected Dim3Struct blockCalculation(Dim3Struct inputNeurons) {
-        if(neurons.getWidth() != weights.getLength() || inputNeurons.getWidth() != weights.getWidth())
+        if(neurons.getWidth() != weights.getWidth() || inputNeurons.getWidth() != weights.getLength())
         {
 
             String message = "Incompatible dimensions: " +
@@ -68,19 +69,40 @@ public class OutputBlock extends WeightBlock {
             throw new RuntimeException("Input must be of dimensions X 1 1");
         }
 
+        int blockNeuronsCount=0;
 
-        for(int wghtLength=0;wghtLength<weights.getLength();wghtLength++){
-            for(int wghtWidth= weights.getWidth()-1; wghtWidth >=0;wghtWidth--){
+        for (int wghtWidth =0; wghtWidth <weights.getWidth(); wghtWidth++) {
+            for (int wghtLength = 0; wghtLength < weights.getLength(); wghtLength++) {
 
-                //System.out.println(wghtLength+" "+ blockNeurons.getValues()[wghtLength][0][0] +" "+ inputNeurons.getValues()[wghtWidth][0][0]+" "+weights.getValues()[wghtWidth][wghtLength][0]);
-
-                neurons.getValues()[wghtLength][0][0] += inputNeurons.getValues()[weights.getWidth() - 1 - wghtWidth][0][0]*weights.getValues()[wghtWidth][wghtLength][0];
+                neurons.getValues()[blockNeuronsCount][0][0] += inputNeurons.getValues()[wghtLength][0][0]*weights.getValues()[wghtWidth][wghtLength][0];
 
             }
+            blockNeuronsCount++;
         }
         return neurons;
 
 
+    }
+
+    @Override
+    protected void clearWeightErrors() {
+
+    }
+
+    public void calculateErrors(Dim3Struct inputDeltas,Dim3Struct nextWeights){
+
+
+        neuronErrors = calculateNeuronErrors(inputDeltas,nextWeights);
+
+        for(int i= postNeuronOperations.size()-1;i>0;i--){
+            neuronErrors = postNeuronOperations.get(i).calculateDeltas(neuronErrors);
+        }
+
+        weightErrors = calculateWeightErrors(neuronErrors);
+
+        for(int i= preNeuronOperations.size()-1;i>0;i--){
+            weightErrors = preNeuronOperations.get(i).calculateDeltas(weightErrors);
+        }
     }
 
 
@@ -89,20 +111,25 @@ public class OutputBlock extends WeightBlock {
 
         this.weightErrors = new Dim3Struct(weights.getDims());
 
+
+
         for(int weightErrorWidth=0;weightErrorWidth<weightErrors.getWidth();weightErrorWidth++) {
             for(int weightErrorLen=0;weightErrorLen<weightErrors.getLength();weightErrorLen++) {
+            //    System.out.println(weightErrorWidth +" "+weightErrorLen + " " + Deltas.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0]);
                 weightErrors.getValues()[weightErrorWidth][weightErrorLen][0] = Deltas.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0];
             }
         }
 
+        //Get transpose
+
         return weightErrors;
     }
+
 
     @Override
     protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas,Dim3Struct nextWeights) {
             neuronErrors = new Dim3Struct(neurons.getDims());
             neuronErrors.populate(lossFunction.calculateDerivative(outputNeurons.toArray(),expectedArray));
-            //System.out.println("Neuron Errors" + neuronErrors.toString());
 
         return neuronErrors;
     }

@@ -40,12 +40,12 @@ public class MnistMatrix {
     }
 
     public double[] toArray(){
-        System.out.println(nRows*nCols);
+
         double[] array = new double[nRows*nCols];
         int count =0;
         for(int i=0;i<nRows;i++){
             for(int j=0;j<nCols;j++){
-                array[count] = data[i][j];
+                array[count] = ((double)(data[i][j]))/255;
                 count++;
             }
         }

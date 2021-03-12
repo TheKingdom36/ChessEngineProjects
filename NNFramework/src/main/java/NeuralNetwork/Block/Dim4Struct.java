@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import java.util.Random;
 
-public class Dim3Struct {
+public class Dim4Struct {
 
     private double[][][] values;
     @Getter @Setter
@@ -17,7 +17,7 @@ public class Dim3Struct {
     private int depth;
 
 
-    public Dim3Struct(int width, int length , int depth){
+    public Dim4Struct(int width, int length , int depth){
         this.length = length;
         this.width = width;
         this.depth = depth;
@@ -25,7 +25,7 @@ public class Dim3Struct {
         values = new double[width][length][depth];
     }
 
-    public Dim3Struct(Dims dims){
+    public Dim4Struct(Dims dims){
         this.length = dims.getLength();
         this.width = dims.getWidth();
         this.depth = dims.getDepth();
@@ -54,7 +54,7 @@ public class Dim3Struct {
         return values[width][length][depth];
     }
 
-    public boolean CompareDimensions(Dim3Struct otherStruct){
+    public boolean CompareDimensions(Dim4Struct otherStruct){
         if(width == otherStruct.getWidth() && length == otherStruct.getLength() && depth == otherStruct.getDepth()){
             return true;
         }
@@ -63,8 +63,8 @@ public class Dim3Struct {
 
     }
 
-    public Dim3Struct Copy() {
-        Dim3Struct copy = new Dim3Struct(width,length,depth);
+    public Dim4Struct Copy() {
+        Dim4Struct copy = new Dim4Struct(width,length,depth);
 
         for(int i=0; i< width ; i++){
             for(int j=0; j< length ; j++){
@@ -91,7 +91,7 @@ public class Dim3Struct {
 
 
     public boolean equals(Object struct){
-        Dim3Struct dim3Struct = (Dim3Struct)struct;
+        Dim4Struct dim3Struct = (Dim4Struct)struct;
 
         if(dim3Struct.getWidth() != this.width ||dim3Struct.getLength() != this.length||dim3Struct.getDepth() != this.depth ){
             return false;

@@ -26,12 +26,12 @@ public class NeuralNetwork<L extends LearningRule> {
         Blocks.get(0).calculate(inputBlock.getNeurons());
 
         for (int i=1 ;i< Blocks.size() ;i++) {
-            Blocks.get(i).calculate(Blocks.get(i-1).getNeurons());
+            Blocks.get(i).calculate(Blocks.get(i-1).getOutputNeurons());
         }
 
-        outputBlock.calculate(Blocks.get(Blocks.size()-1).getNeurons());
+        outputBlock.calculate(Blocks.get(Blocks.size()-1).getOutputNeurons());
 
-        return outputBlock.getNeurons().toArray();
+        return outputBlock.getOutputNeurons().toArray();
     }
 
     public double loss(double[] expected){
@@ -75,19 +75,21 @@ public class NeuralNetwork<L extends LearningRule> {
 //TODO give the next layer Weights
         outputBlock.calculateErrors(null,null);
 
-        Blocks.get(Blocks.size()-1).calculateErrors(outputBlock.getWeightErrors(),outputBlock.getWeights());
+       Blocks.get(Blocks.size()-1).calculateErrors(outputBlock.getNeuronErrors(),outputBlock.getWeights());
 
-        for(int i=Blocks.size()-2;i>1;i--){
-            Blocks.get(i).calculateErrors(((WeightBlock)Blocks.get(i+1)).getWeightErrors(),((WeightBlock)Blocks.get(i+1)).getWeights());
+
+
+        for(int i=Blocks.size()-2;i>=0;i--){
+            Blocks.get(i).calculateErrors(((WeightBlock)Blocks.get(i+1)).getNeuronErrors(),((WeightBlock)Blocks.get(i+1)).getWeights());
         }
 
     }
 
     public void updateWeights(WeightUpdateRule rule) {
-        outputBlock.UpdateWeights(rule);
+        outputBlock.updateWeights(rule);
 
         for(int i=0;i<Blocks.size();i++){
-            Blocks.get(i).UpdateWeights(rule);
+            Blocks.get(i).updateWeights(rule);
         }
 
     }

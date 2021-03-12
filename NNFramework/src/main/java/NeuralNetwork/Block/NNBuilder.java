@@ -32,8 +32,8 @@ public class NNBuilder {
 
 
     public NNBuilder addOutputLayer(int numOfOutputNeurons,LossFunction lossFunction){
-
-        OutputBlock block = new OutputBlock(numOfOutputNeurons,lastBlock.getNeurons().totalNumOfValues(),lossFunction);
+        lastBlock.setUp();
+        OutputBlock block = new OutputBlock(numOfOutputNeurons,lastBlock.getOutputNeurons().totalNumOfValues(),lossFunction);
 
         if(lastBlock instanceof ConvolutionalBlock){
             block.addToPreNeuronOperations(new FlattenOp());
@@ -52,6 +52,7 @@ public class NNBuilder {
             //only input has been provided
             block = new FullyConnectedBlock(neuralNetwork.getInputBlock().getNeurons().totalNumOfValues(), numOfNeurons, function);
         } else {
+            lastBlock.setUp();
             block = new FullyConnectedBlock(lastBlock.getOutputNeurons().totalNumOfValues(), numOfNeurons, function);
         }
 

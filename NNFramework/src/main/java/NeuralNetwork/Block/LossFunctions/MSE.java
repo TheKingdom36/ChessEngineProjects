@@ -13,16 +13,18 @@ public class MSE implements LossFunction {
              endValue += Math.pow(expectedValues[i]-actualValues[i],2);
         }
 
-        return endValue/actualValues.length;
+        double result = (endValue/actualValues.length);
+        return result;
 
     }
 
     @Override
     public double[] calculateDerivative(double[] actualValues, double[] expectedValues) {
         double[] derivativeValues  = new double[actualValues.length];
-
+//System.out.println(expectedValues.length);
         for(int i=0; i<actualValues.length;i++){
-            derivativeValues[i] = (-1*(expectedValues[i]-actualValues[i]))/actualValues.length;
+            derivativeValues[i] = (-2*(expectedValues[i]-actualValues[i]));
+            derivativeValues[i] = (derivativeValues[i]/actualValues.length);
         }
 
         return derivativeValues;

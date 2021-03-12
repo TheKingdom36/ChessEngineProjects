@@ -70,6 +70,10 @@ public class DataSet implements Serializable { // implements
         samples.add(new DataSetSample(input,output));
     }
 
+    public void add(DataSetSample sample){
+        samples.add(sample);
+    }
+
     //remove at
     public DataSetSample removeSampleAt(int position){
         return samples.remove(position);
