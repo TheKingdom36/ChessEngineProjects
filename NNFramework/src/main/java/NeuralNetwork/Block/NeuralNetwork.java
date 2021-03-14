@@ -12,11 +12,11 @@ public class NeuralNetwork<L extends LearningRule> {
     @Getter @Setter
     Block inputBlock;
     @Getter @Setter
-    OutputBlock outputBlock;
+    BasicOutputBlock basicOutputBlock;
     @Getter
     L learningRule;
 
-    ArrayList<WeightBlock> Blocks = new ArrayList<>();
+    ArrayList<FeatureBlock> Blocks = new ArrayList<>();
 
     public double[] evaluate(Dim3Struct input) {
 
@@ -29,16 +29,16 @@ public class NeuralNetwork<L extends LearningRule> {
             Blocks.get(i).calculate(Blocks.get(i-1).getOutputNeurons());
         }
 
-        outputBlock.calculate(Blocks.get(Blocks.size()-1).getOutputNeurons());
+        basicOutputBlock.calculate(Blocks.get(Blocks.size()-1).getOutputNeurons());
 
-        return outputBlock.getOutputNeurons().toArray();
+        return basicOutputBlock.getOutputNeurons().toArray();
     }
 
     public double loss(double[] expected){
-        return outputBlock.calculateLossFunc(expected);
+        return basicOutputBlock.calculateLossFunc(expected);
     }
 
-    public void addBlock(WeightBlock block){
+    public void addBlock(FeatureBlock block){
         Blocks.add(block);
     }
 
@@ -73,20 +73,23 @@ public class NeuralNetwork<L extends LearningRule> {
 
     public void calculateWeightErrors() {
 //TODO give the next layer Weights
-        outputBlock.calculateErrors(null,null);
+  /*      basicOutputBlock.calculateErrors(null,null);
 
-       Blocks.get(Blocks.size()-1).calculateErrors(outputBlock.getNeuronErrors(),outputBlock.getWeights());
-
+        if() {
+            Blocks.get(Blocks.size() - 1).calculateErrors(basicOutputBlock, basicOutputBlock.getWeights());
+        }else{
+            Blocks.get(Blocks.size()-1).calculateErrors(inputBlock, basicOutputBlock);
+        }
 
 
         for(int i=Blocks.size()-2;i>=0;i--){
-            Blocks.get(i).calculateErrors(((WeightBlock)Blocks.get(i+1)).getNeuronErrors(),((WeightBlock)Blocks.get(i+1)).getWeights());
+            Blocks.get(i).calculateErrors(((FeatureBlock)Blocks.get(i+1)).getNeuronErrors(),((FeatureBlock)Blocks.get(i+1)).getWeights());
         }
-
+*/
     }
 
     public void updateWeights(WeightUpdateRule rule) {
-        outputBlock.updateWeights(rule);
+        basicOutputBlock.updateWeights(rule);
 
         for(int i=0;i<Blocks.size();i++){
             Blocks.get(i).updateWeights(rule);
@@ -95,7 +98,7 @@ public class NeuralNetwork<L extends LearningRule> {
     }
 
     public void resetErrors() {
-        outputBlock.resetErrors();
+        basicOutputBlock.resetErrors();
         for(int i=0;i<Blocks.size();i++){
             Blocks.get(i).resetErrors();
         }
@@ -105,3 +108,4 @@ public class NeuralNetwork<L extends LearningRule> {
 
     }
 }
+

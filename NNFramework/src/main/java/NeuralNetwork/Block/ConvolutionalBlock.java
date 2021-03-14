@@ -3,9 +3,8 @@ package NeuralNetwork.Block;
 import NeuralNetwork.Block.ActivationFunctions.ActivationFunction;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class ConvolutionalBlock extends WeightBlock<ArrayList<Dim3Struct>>{
+public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
 
     private int numOfKernels;
     private int kernelLength;
@@ -40,6 +39,11 @@ public class ConvolutionalBlock extends WeightBlock<ArrayList<Dim3Struct>>{
         for(int i=0;i<numOfKernels;i++){
             weights.add(new Dim3Struct(kernelWidth,kernelLength,inputDims.getDepth()));
         }
+
+    }
+
+    @Override
+    void generateBlockWeights() {
 
     }
 
@@ -117,10 +121,10 @@ public class ConvolutionalBlock extends WeightBlock<ArrayList<Dim3Struct>>{
     }
 
     @Override
-    protected ArrayList<Dim3Struct> calculateWeightErrors(Dim3Struct inputDeltas) {
+    protected ArrayList<Dim3Struct> calculateWeightErrors(Dim3Struct neuronErrors,Dim3Struct inputNeurons) {
 
-        int deltasWidth = inputDeltas.getWidth();
-        int deltasLength = inputDeltas.getLength();
+        int deltasWidth = neuronErrors.getWidth();
+        int deltasLength = neuronErrors.getLength();
 
         Dim3Struct PaddedInput = pad(inputNeurons);
 
@@ -142,7 +146,13 @@ public class ConvolutionalBlock extends WeightBlock<ArrayList<Dim3Struct>>{
     }
 
     @Override
-    protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas,ArrayList<Dim3Struct> nextWeights) {
+    protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas,Object nextWeights) {
+
+        if(nextWeights instanceof Dim3Struct){
+            //neurons errors should be errors od con. As we are connected to a fc layer
+        }else{
+            //do normal CB
+        }
 
         return null;
     }

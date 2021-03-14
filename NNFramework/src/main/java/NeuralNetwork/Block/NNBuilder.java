@@ -33,13 +33,13 @@ public class NNBuilder {
 
     public NNBuilder addOutputLayer(int numOfOutputNeurons,LossFunction lossFunction){
         lastBlock.setUp();
-        OutputBlock block = new OutputBlock(numOfOutputNeurons,lastBlock.getOutputNeurons().totalNumOfValues(),lossFunction);
+        BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,lastBlock.getOutputNeurons().totalNumOfValues(),lossFunction);
 
         if(lastBlock instanceof ConvolutionalBlock){
             block.addToPreNeuronOperations(new FlattenOp());
         }
 
-        neuralNetwork.setOutputBlock(block);
+        neuralNetwork.setBasicOutputBlock(block);
         lastBlock=  block;
         return this;
     }

@@ -9,6 +9,5 @@ public abstract class Block {
     @Setter
     protected Dim3Struct neurons;
 
-    public abstract void calculateErrors(Dim3Struct InputDeltas,Dim3Struct nextWeights);
-    public abstract Dim3Struct calculate(Dim3Struct InputNeurons);
+
 }

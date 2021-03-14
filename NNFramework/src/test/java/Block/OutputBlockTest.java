@@ -1,13 +1,9 @@
 package Block;
 
-import NeuralNetwork.Block.ActivationFunctions.ReLU;
-import NeuralNetwork.Block.Block;
 import NeuralNetwork.Block.Dim3Struct;
-import NeuralNetwork.Block.FullyConnectedBlock;
 import NeuralNetwork.Block.LossFunctions.MSE;
 import NeuralNetwork.Block.Operations.SoftmaxOp;
-import NeuralNetwork.Block.OutputBlock;
-import NeuralNetwork.Block.functions.Softmax;
+import NeuralNetwork.Block.BasicOutputBlock;
 import NeuralNetwork.UtilityMethods;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
@@ -18,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class OutputBlockTest {
 
-
+/*
     //execute only once, in the starting
     @BeforeClass
     public static void beforeClass() {
@@ -58,7 +54,7 @@ class OutputBlockTest {
         double[] weightValues = {1d,2d,3.4,0.5,0.8,6.9,0.7,0.8,10d};
         UtilityMethods.PopulateDimStruct(weights,weightValues);
 
-        OutputBlock outBl = new OutputBlock(3,3,new MSE());
+        BasicOutputBlock outBl = new BasicOutputBlock(3,3,new MSE());
 
         outBl.setWeights(weights);
         outBl.calculate(input);
@@ -107,7 +103,7 @@ class OutputBlockTest {
         output.getValues()[1][0][0]=1;
         output.getValues()[2][0][0]=1;
 
-        OutputBlock block = new OutputBlock(3,3,new MSE());
+        BasicOutputBlock block = new BasicOutputBlock(3,3,new MSE());
         Dim3Struct weights = new Dim3Struct(3,3,1);
         double[] weightValues = {1d,1d,1d,1d,1d,1d,1d,1d,1d};
         UtilityMethods.PopulateDimStruct(weights,weightValues);
@@ -128,5 +124,5 @@ class OutputBlockTest {
 
         System.out.println(weightErrors);
 
-    }
+    }*/
 }

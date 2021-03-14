@@ -153,6 +153,8 @@ FCBlock.setWeights(weights);
 
         assertEquals(expectedOutput,FCBlock2.getNeurons());
     }
+
+    /*
     @Test
     public void BackwardPassFullyConnectedBlock(){
 
@@ -355,5 +357,5 @@ FCBlock.setWeights(weights);
 
         assertEquals(expectedWeightErrors,FCB.getWeightErrors());
 
-    }
+    }*/
 }
