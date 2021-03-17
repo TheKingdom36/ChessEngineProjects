@@ -2,6 +2,7 @@ package NeuralNetwork.Block;
 
 import NeuralNetwork.Block.ActivationFunctions.ActivationFunction;
 
+import java.awt.image.Kernel;
 import java.util.ArrayList;
 
 public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
@@ -22,8 +23,8 @@ public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
 
     private boolean connectedToFC=false;
 
-    public ConvolutionalBlock(ArrayList<Dim3Struct> weights, Dim3Struct.Dims inputNeuronDims, Dim3Struct.Dims blockNeuronDims, int stride, int padding, int kernelWidth , int kernelLength, int numOfKernels, ActivationFunction func) {
-        super(blockNeuronDims,inputNeuronDims,weights,func);
+    public ConvolutionalBlock(Dim3Struct.Dims inputNeuronDims, Dim3Struct.Dims blockNeuronDims, int stride, int padding, int kernelWidth , int kernelLength, int numOfKernels, ActivationFunction func) {
+        super(inputNeuronDims,func);
 
         this.padding = padding;
         this.kernelLength = kernelLength;
@@ -33,8 +34,9 @@ public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
 
     }
 
+
     @Override
-    protected void generateBlockWeights(Dim3Struct.Dims inputDims) {
+    protected void generateFeatureBlWeights(Dim3Struct.Dims inputDims) {
 
         for(int i=0;i<numOfKernels;i++){
             weights.add(new Dim3Struct(kernelWidth,kernelLength,inputDims.getDepth()));
@@ -43,13 +45,13 @@ public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
     }
 
     @Override
-    void generateBlockWeights() {
-
+    void setupNeurons() {
+//TODO
     }
 
     @Override
     public void updateWeights(WeightUpdateRule rule) {
-
+//TODO
     }
 
     @Override
@@ -60,7 +62,7 @@ public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
         int newLength = ((PaddedInput.getLength() - kernelLength + 2*padding)/stride) + 1;
         int newWidth =  ((PaddedInput.getWidth() - kernelWidth + 2*padding)/stride) + 1;
 
-        System.out.println(newWidth + " " + newLength);
+
 
         Dim3Struct output = new Dim3Struct(new Dim3Struct.Dims(newLength,newWidth,PaddedInput.getDepth()));
 
@@ -79,13 +81,12 @@ public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
                 for(int inputW=0;inputW<=PaddedInput.getWidth() - kernelWidth; inputW = inputW + stride){
 
 
-                    System.out.println(outputW + " " + outputL);
 
                     for(int KW =0 ; KW<kernelWidth;KW++){
                         for(int KL =0 ; KL < kernelLength;KL++){
                             for(int KD =0; KD<PaddedInput.getDepth();KD++){
 
-                             //CH output.getValues()[outputW][outputL][kernel] += weights.getValues()[KW][KL][KD] * PaddedInput.getValues()[inputW+KW][inputL+KL][KD];
+                             output.getValues()[outputW][outputL][kernel] += weights.get(kernel).getValues()[KW][KL][KD] * PaddedInput.getValues()[inputW+KW][inputL+KL][KD];
                             }
                         }
                     }
@@ -95,17 +96,17 @@ public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
             }
         }
 
-        System.out.println(output);
+
         return output;
     }
 
     @Override
     protected void clearWeightErrors() {
-
+//TODO
     }
 
     private Dim3Struct pad(Dim3Struct input) {
-        System.out.println(input);
+
         Dim3Struct output = new Dim3Struct(input.getWidth()+2*padding, input.getLength()+2*padding,input.getDepth());
 
         for(int w  =0;w<input.getWidth();w++){
@@ -116,45 +117,76 @@ public class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>> {
             }
         }
 
-        System.out.println(output);
+
         return output;
     }
 
     @Override
     protected ArrayList<Dim3Struct> calculateWeightErrors(Dim3Struct neuronErrors,Dim3Struct inputNeurons) {
 
-        int deltasWidth = neuronErrors.getWidth();
-        int deltasLength = neuronErrors.getLength();
+        int errorsWidth = neuronErrors.getWidth();
+        int errorsLength = neuronErrors.getLength();
 
         Dim3Struct PaddedInput = pad(inputNeurons);
 
+        this.weightErrors = new ArrayList<>();
+        Dim3Struct.Dims weightDims = weights.get(0).getDims();
+        for(int i=0; i< weights.size(); i++){
+            this.weightErrors.add(new Dim3Struct(weightDims));
+        }
 
         for(int kernel=0;kernel<numOfKernels;kernel++){
             for(int kernelW =0; kernelW<kernelWidth;kernelW++){
                 for(int kernelL =0; kernelL<kernelLength;kernelL++) {
 
-                    for (int i = 0; i < deltasWidth; i++) {
-                        for (int j = 0; j < deltasLength; j++) {
-                            //CH weights.getValues()[kernelW][kernelL][kernel] = inputDeltas.getValue(i,j,kernel)*PaddedInput.getValue(i*stride + kernelW,j*stride+kernelL,kernel);
+                    for (int i = 0; i < errorsWidth; i++) {
+                        for (int j = 0; j < errorsLength; j++) {
+                            weightErrors.get(kernel).getValues()[kernelW][kernelL][kernel] = neuronErrors.getValue(i,j,kernel)*PaddedInput.getValue(i*stride + kernelW,j*stride+kernelL,kernel);
                         }
                     }
                 }
             }
         }
 
-        return null;
+        return weightErrors;
     }
 
     @Override
-    protected Dim3Struct calculateNeuronErrors(Dim3Struct inputDeltas,Object nextWeights) {
+    protected Dim3Struct calculateNeuronErrors(Dim3Struct nextNeuronErrors,Object nextWeights) {
 
         if(nextWeights instanceof Dim3Struct){
             //neurons errors should be errors od con. As we are connected to a fc layer
-        }else{
+            neuronErrors = nextNeuronErrors.Copy();
+        }else if(nextWeights instanceof ArrayList){
             //do normal CB
+
+            this.neuronErrors = new Dim3Struct(neurons.getDims());
+
+            //do it per kernel
+            for(int ker=0;ker<((ArrayList<Dim3Struct>) nextWeights).size();ker++){
+
+                //for each neuron value
+                for(int Wne =0; Wne < neuronErrors.getWidth(); Wne++){
+                    for(int Lne =0; Lne < neuronErrors.getLength(); Lne++){
+                        for(int Dne=0; Dne < neuronErrors.getDepth(); Dne++){
+
+                            for(int WNxtErr=0;WNxtErr<nextNeuronErrors.getWidth();WNxtErr++){
+                                for(int LNxtErr=0;LNxtErr<nextNeuronErrors.getLength();LNxtErr++){
+
+                                    neuronErrors.getValues()[Wne][Lne][Dne] += nextNeuronErrors.getValues()[WNxtErr][WNxtErr][ker]*((ArrayList<Dim3Struct>) nextWeights).get(ker).getValues()[Wne - WNxtErr*(stride)][Lne - LNxtErr*stride][Dne];
+
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+            }
+
         }
 
-        return null;
+        return neuronErrors;
     }
 
 

@@ -28,11 +28,12 @@ public abstract class WeightBlock<WeightsStruct> extends Block {
 
     protected List<BlockOperation> postNeuronOperations;
 
-    public WeightBlock(Dim3Struct.Dims neuronDims, Dim3Struct.Dims inputDims, WeightsStruct weights){
+    public WeightBlock(Dim3Struct.Dims inputDims){
         preNeuronOperations = new ArrayList<>();
         postNeuronOperations = new ArrayList<>();
-        this.neurons = new Dim3Struct(neuronDims);
-        this.weights = weights;
+
+
+        this.inputNeuronsDims = inputDims;
     }
 
     public WeightBlock(){
@@ -51,9 +52,13 @@ public abstract class WeightBlock<WeightsStruct> extends Block {
 
     abstract void resetErrors();
 
-    abstract void generateBlockWeights();
+    abstract void setupWeights();
+
+    abstract void setupNeurons();
+
+    abstract void VerifyBlock();
 
     abstract void updateWeights(WeightUpdateRule rule);
 
-    abstract void setUp();
+    public abstract void setUp();
 }

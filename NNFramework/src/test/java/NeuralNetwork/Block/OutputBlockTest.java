@@ -1,4 +1,4 @@
-package Block;
+package NeuralNetwork.Block;
 
 import NeuralNetwork.Block.Dim3Struct;
 import NeuralNetwork.Block.LossFunctions.MSE;

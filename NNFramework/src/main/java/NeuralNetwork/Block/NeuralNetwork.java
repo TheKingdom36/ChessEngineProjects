@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class NeuralNetwork<L extends LearningRule> {
 
     @Getter @Setter
-    Block inputBlock;
+    InputBlock inputBlock;
     @Getter @Setter
     BasicOutputBlock basicOutputBlock;
     @Getter
@@ -72,20 +72,19 @@ public class NeuralNetwork<L extends LearningRule> {
 
 
     public void calculateWeightErrors() {
-//TODO give the next layer Weights
-  /*      basicOutputBlock.calculateErrors(null,null);
-
-        if() {
-            Blocks.get(Blocks.size() - 1).calculateErrors(basicOutputBlock, basicOutputBlock.getWeights());
-        }else{
-            Blocks.get(Blocks.size()-1).calculateErrors(inputBlock, basicOutputBlock);
-        }
+      basicOutputBlock.calculateErrors(Blocks.get(Blocks.size()-1));
 
 
-        for(int i=Blocks.size()-2;i>=0;i--){
-            Blocks.get(i).calculateErrors(((FeatureBlock)Blocks.get(i+1)).getNeuronErrors(),((FeatureBlock)Blocks.get(i+1)).getWeights());
-        }
-*/
+      if(Blocks.size() == 1){
+          Blocks.get(Blocks.size()-1).calculateErrors(inputBlock, (WeightBlock)basicOutputBlock);
+      }else{
+            Blocks.get(Blocks.size() - 1).calculateErrors(Blocks.get(Blocks.size() -2 ), basicOutputBlock);
+
+
+          for(int i=Blocks.size()-2;i>=0;i--){
+              Blocks.get(i).calculateErrors(Blocks.get(i-1),Blocks.get(i+1));
+          }
+      }
     }
 
     public void updateWeights(WeightUpdateRule rule) {

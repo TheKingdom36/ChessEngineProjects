@@ -45,7 +45,7 @@ lossPerSample.clear();
 
 
             //go through network
-            double[] neuralnetworkout = neuralNetwork.evaluate(sample.getInput());
+            double[] neuralNetworkOutput = neuralNetwork.evaluate(sample.getInput());
 
 
             //grab loss

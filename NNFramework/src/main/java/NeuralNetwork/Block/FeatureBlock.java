@@ -14,12 +14,12 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
 
     protected ActivationFunction activationFunction;
 
-    public FeatureBlock(Dim3Struct.Dims neuronDims, Dim3Struct.Dims inputDims, WeightsStruct weights){
-        super(neuronDims,inputDims,weights);
+    public FeatureBlock( Dim3Struct.Dims inputDims){
+        super(inputDims);
     }
 
-    public FeatureBlock(Dim3Struct.Dims neuronDims, Dim3Struct.Dims inputDims, WeightsStruct weights, ActivationFunction func){
-        super(neuronDims,inputDims,weights);
+    public FeatureBlock(Dim3Struct.Dims inputDims, ActivationFunction func){
+        super(inputDims);
 
         this.activationFunction = func;
     }
@@ -28,14 +28,24 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
 
     }
 
+    @Override
+    public void setUp(){
+        if(neurons ==null ){
+            setupNeurons();
+        }
+        if(weights == null){
+            setupWeights();
+        }
+
+
+        VerifyBlock();
+    }
 
 
 
     public Dim3Struct calculate(Dim3Struct Input){
 
-        if(weights == null){
-            generateWeights(Input.getDims());
-        }
+
 
         neurons.clear();
         
@@ -62,24 +72,17 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
     }
 
     @Override
-    public void setUp(){
-        if(weights == null){
-            generateWeights(this.inputNeuronsDims);
-        }
-        setupBlockDimensions(this.inputNeuronsDims);
-    }
-
-    protected void generateWeights(Dim3Struct.Dims inputDims) {
+    protected void setupWeights() {
         if(preNeuronOperations.size() >0){
-            preNeuronOperations.get(0).doOp(new Dim3Struct(inputDims));
+            preNeuronOperations.get(0).doOp(new Dim3Struct(this.inputNeuronsDims));
             for (int i=1 ; i<preNeuronOperations.size();i++){
                 preNeuronOperations.get(i).doOp(preNeuronOperations.get(i-1).getOutputNeurons());
             }
 
-            generateBlockWeights(preNeuronOperations.get(preNeuronOperations.size()-1).getOutputNeurons().getDims());
+            generateFeatureBlWeights(preNeuronOperations.get(preNeuronOperations.size()-1).getOutputNeurons().getDims());
 
         }else {
-            generateBlockWeights(inputDims);
+            generateFeatureBlWeights(this.inputNeuronsDims);
         }
 
     }
@@ -108,8 +111,7 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
 
     }
 
-
-    public void calculateErrors(InputBlock previousBlock, WeightBlock nextBlock){
+    public void calculateErrors(InputBlock inputBlock, WeightBlock nextBlock){
 
         neuronErrors = calculateNeuronErrors(nextBlock.getNeuronErrors(),nextBlock.getWeights());
 
@@ -125,13 +127,15 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
             neuronErrors = postNeuronOperations.get(i).calculateDeltas(neuronErrors);
         }
 
-        weightErrors = calculateWeightErrors(neuronErrors,previousBlock.getNeurons());
+        weightErrors = calculateWeightErrors(neuronErrors,inputBlock.getNeurons());
 
         for(int i= preNeuronOperations.size()-1;i>0;i--){
             neuronErrors = preNeuronOperations.get(i).calculateDeltas(neuronErrors);
         }
 
     }
+
+
 
     @Override
     public void resetErrors() {
@@ -143,16 +147,16 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
     }
 
     /**
-     * Used to set up the dimensions of the inner neurons
-     * @param input
+     * Used to verify that the network dimensions are correctly set
+     *
      */
-    public void setupBlockDimensions(Dim3Struct.Dims input){
+    public void VerifyBlock(){
 
-        calculate(new Dim3Struct(input));
+        calculate(new Dim3Struct(inputNeuronsDims));
     }
 
 
-    protected abstract void generateBlockWeights(Dim3Struct.Dims inputDims);
+    protected abstract void generateFeatureBlWeights(Dim3Struct.Dims inputDims);
 
     protected abstract WeightsStruct calculateWeightErrors(Dim3Struct neuronErrors,Dim3Struct inputNeurons);
 

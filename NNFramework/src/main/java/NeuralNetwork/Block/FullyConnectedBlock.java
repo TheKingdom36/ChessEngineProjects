@@ -6,19 +6,24 @@ import NeuralNetwork.Exceptions.DimensionMismatch;
 
 public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
 
-
+    int numBlockNeurons;
+    public FullyConnectedBlock(int numInputNeurons, int numBlockNeurons, ActivationFunction actFunc){
+        super(new Dim3Struct.Dims(numInputNeurons,1,1),actFunc);
+        this.numBlockNeurons = numBlockNeurons;
+    }
 
 
     @Override
-    protected void generateBlockWeights(Dim3Struct.Dims inputDims) {
+    protected void setupNeurons() {
+        neurons = new Dim3Struct(numBlockNeurons,1,1);
+    }
+
+    @Override
+    protected void generateFeatureBlWeights(Dim3Struct.Dims inputDims) {
 
         weights = new Dim3Struct(neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getDepth(),1);
     }
 
-    @Override
-    public void generateBlockWeights() {
-        //TODO
-    }
 
     @Override
     public void updateWeights(WeightUpdateRule rule) {
@@ -59,11 +64,11 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
             return null;
         }else{
 
-        if(nextNeuronErrors == null){
-            throw new RuntimeException("The parameter can not be null");
-        }
+            if(nextNeuronErrors == null){
+                throw new RuntimeException("The parameter can not be null");
+            }
 
-        this.neuronErrors = new Dim3Struct(outputNeurons.getDims());
+            this.neuronErrors = new Dim3Struct(neurons.getDims());
 
             for(int neuronCount=0;neuronCount<neuronErrors.getWidth();neuronCount++) {
                 for (int inputDeltaCount = 0; inputDeltaCount < nextNeuronErrors.getWidth(); inputDeltaCount++) {
@@ -75,9 +80,7 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
         }
     }
 
-    public FullyConnectedBlock(int numInputNeurons, int numBlockNeurons, ActivationFunction actFunc){
-        super(new Dim3Struct.Dims(numBlockNeurons,1,1),new Dim3Struct.Dims(numInputNeurons,1,1),new Dim3Struct(numBlockNeurons,1,1),actFunc);
-    }
+
 
 
     @Override

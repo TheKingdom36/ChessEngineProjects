@@ -1,13 +1,10 @@
-package Block;
+package NeuralNetwork.Block;
 
-import NeuralNetwork.Block.*;
 import NeuralNetwork.Block.ActivationFunctions.ReLU;
 import NeuralNetwork.Block.ActivationFunctions.Sigmoid;
-import NeuralNetwork.Block.LossFunctions.CrossEntropy;
 import NeuralNetwork.Block.LossFunctions.MSE;
-import NeuralNetwork.Block.Mnist.MnistDataReader;
 import NeuralNetwork.Block.Mnist.MnistDataReaderDataSet;
-import NeuralNetwork.Block.Mnist.MnistMatrix;
+import NeuralNetwork.Block.NNBuilders.NNBuilder;
 import NeuralNetwork.Block.Operations.SoftmaxOp;
 import NeuralNetwork.Block.WeightIntializers.Xavier;
 import NeuralNetwork.Block.WeightIntializers.uniformDistribution;
@@ -15,8 +12,6 @@ import NeuralNetwork.UtilityMethods;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;

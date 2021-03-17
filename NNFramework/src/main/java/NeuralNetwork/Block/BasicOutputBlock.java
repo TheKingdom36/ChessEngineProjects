@@ -6,27 +6,29 @@ import NeuralNetwork.Exceptions.DimensionMismatch;
 public class BasicOutputBlock extends OutputBlock<Dim3Struct> {
 
     private double[] expectedArray;
-
+    int numOfBlockNeurons;
     public BasicOutputBlock(int numBlockNeurons, int numInputNeurons, LossFunction lossFunction){
-        super(new Dim3Struct.Dims(numBlockNeurons,1,1),new Dim3Struct.Dims(numInputNeurons,1,1),new Dim3Struct(numInputNeurons,numBlockNeurons,1),null);
-        this.lossFunction = lossFunction;
+        super(new Dim3Struct.Dims(numInputNeurons,1,1),lossFunction);
+        this.numOfBlockNeurons = numBlockNeurons;
     }
 
 
     @Override
-    protected void generateBlockWeights() {
-        weights = new Dim3Struct(neurons.totalNumOfValues(),inputNeuronsDims.getWidth()*inputNeuronsDims.getLength()*inputNeuronsDims.getDepth(),1);
+    protected void generateFeatureBlWeights(Dim3Struct.Dims inputDims) {
+        weights = new Dim3Struct(neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getDepth(),1);
     }
+
+    @Override
+    protected void setupNeurons() {
+        neurons = new Dim3Struct(numOfBlockNeurons,1,1);
+    }
+
 
     @Override
     public void updateWeights(WeightUpdateRule rule) {
 
     }
 
-    @Override
-    void setUp() {
-
-    }
 
     public Dim3Struct calculate(Dim3Struct Input){
 

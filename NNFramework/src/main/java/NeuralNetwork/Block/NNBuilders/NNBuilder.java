@@ -1,37 +1,40 @@
-package NeuralNetwork.Block;
+package NeuralNetwork.Block.NNBuilders;
 
+import NeuralNetwork.Block.*;
 import NeuralNetwork.Block.ActivationFunctions.ActivationFunction;
 import NeuralNetwork.Block.Operations.BlockOperation;
 import NeuralNetwork.Block.Operations.FlattenOp;
 
-public class NNBuilder {
+public class NNBuilder<Type extends NNBuilder<Type>> {
 
-    NeuralNetwork<LearningRule> neuralNetwork;
+    protected NeuralNetwork<LearningRule> neuralNetwork;
 
-    WeightBlock lastBlock;
+    protected WeightBlock lastBlock;
     boolean inputProvided=false;
 
     public NNBuilder(){
         neuralNetwork = new NeuralNetwork<>();
     }
 
-    public NNBuilder addInputBlock(Dim3Struct.Dims inputSize){
+
+
+    public Type addInputBlock(Dim3Struct.Dims inputSize){
         neuralNetwork.setInputBlock(new InputBlock(inputSize));
         inputProvided=true;
-        return this;
+        return (Type)this;
     }
-    public NNBuilder addInputBlock(double[] input){
+    public Type addInputBlock(double[] input){
         return addInputBlock(new Dim3Struct.Dims(input.length,1,1));
 
     }
 
-    public NNBuilder provideLearningRule(LearningRule rule){
+    public Type provideLearningRule(LearningRule rule){
         neuralNetwork.setLearningRule(rule);
-        return this;
+        return (Type)this;
     }
 
 
-    public NNBuilder addOutputLayer(int numOfOutputNeurons,LossFunction lossFunction){
+    public Type addOutputLayer(int numOfOutputNeurons,LossFunction lossFunction){
         lastBlock.setUp();
         BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,lastBlock.getOutputNeurons().totalNumOfValues(),lossFunction);
 
@@ -41,10 +44,10 @@ public class NNBuilder {
 
         neuralNetwork.setBasicOutputBlock(block);
         lastBlock=  block;
-        return this;
+        return (Type)this;
     }
 
-    public NNBuilder addFullyConnectedBlock(int numOfNeurons, ActivationFunction function) {
+    public Type addFullyConnectedBlock(int numOfNeurons, ActivationFunction function) {
         FullyConnectedBlock block;
 
 
@@ -56,43 +59,39 @@ public class NNBuilder {
             block = new FullyConnectedBlock(lastBlock.getOutputNeurons().totalNumOfValues(), numOfNeurons, function);
         }
 
-        if (lastBlock instanceof ConvolutionalBlock) {
-            block.addToPreNeuronOperations(new FlattenOp());
-        }
-
         lastBlock = block;
         neuralNetwork.addBlock(block);
 
-        return this;
+        return (Type)this;
     }
 
 
 
-    public NNBuilder addWeights(Dim3Struct weights){
+    public Type addWeights(Dim3Struct weights){
         lastBlock.setWeights(weights);
-        return this;
+        return (Type)this;
     }
 
-    public NNBuilder withPreOperation(BlockOperation block){
+    public Type withPreOperation(BlockOperation block){
         lastBlock.addToPreNeuronOperations(block);
-        return this;
+        return (Type)this;
     }
 
-    public NNBuilder withPostOperation(BlockOperation block){
+    public Type withPostOperation(BlockOperation block){
         lastBlock.addToPostNeuronOperations(block);
-        return this;
+        return (Type)this;
     }
 
-    public NNBuilder setWeights(Dim3Struct weights){
+    public Type setWeights(Dim3Struct weights){
         lastBlock.setWeights(weights);
-        return this;
+        return (Type)this;
     }
 
     public NeuralNetwork build() {
         if(neuralNetwork.getLearningRule() == null){
             neuralNetwork.setLearningRule(new SGD());
         }
-
+        lastBlock.setUp();
         neuralNetwork.setUp();
 
         return neuralNetwork;
