@@ -17,16 +17,16 @@ public class ConvNNBuilder extends NNBuilder<ConvNNBuilder> {
 
         if (lastBlock == null && inputProvided == true) {
             //only input has been provided
-           // block = new ConvolutionalBlock((neuralNetwork.getInputBlock().getNeurons().totalNumOfValues(), numOfNeurons, lossFunction);
-         //   new ConvolutionalBlock()
+            block = new ConvolutionalBlock(neuralNetwork.getInputBlock().getNeurons().getDims() ,stride,padding,kernelWidth,kernelLength,numOfKernels,func);
+
         } else {
             lastBlock.setUp();
-            //block = new ConvolutionalBlock(lastBlock.getOutputNeurons().totalNumOfValues(), numOfNeurons, lossFunction);
-           // numOfNeurons++;
+            block = new ConvolutionalBlock(lastBlock.getOutputNeurons().getDims(),stride,padding,kernelWidth,kernelLength,numOfKernels,func);
+
         }
 
-        //lastBlock = block;
-        //neuralNetwork.addBlock(block);
+        lastBlock = block;
+        neuralNetwork.addBlock(block);
 
 
         return this;
@@ -51,6 +51,28 @@ public class ConvNNBuilder extends NNBuilder<ConvNNBuilder> {
 
         lastBlock = block;
         neuralNetwork.addBlock(block);
+
+        return this;
+    }
+
+    @Override
+    public ConvNNBuilder addWeights(Dim3Struct weights){
+        if(lastBlock instanceof FullyConnectedBlock){
+            lastBlock.setWeights(weights);
+        }else if(lastBlock instanceof ConvolutionalBlock){
+            throw new RuntimeException("A convoutional Block requires a list of Dim3struct");
+        }
+
+        return this;
+    }
+
+
+    public ConvNNBuilder addWeights(ArrayList<Dim3Struct> weights){
+        if(lastBlock instanceof FullyConnectedBlock){
+            throw new RuntimeException("A fully connected Block requires a single Dim3struct");
+        }else if(lastBlock instanceof ConvolutionalBlock){
+            lastBlock.setWeights(weights);
+        }
 
         return this;
     }

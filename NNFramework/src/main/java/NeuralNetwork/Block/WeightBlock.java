@@ -52,10 +52,6 @@ public abstract class WeightBlock<WeightsStruct> extends Block {
 
     abstract void resetErrors();
 
-    abstract void setupWeights();
-
-    abstract void setupNeurons();
-
     abstract void VerifyBlock();
 
     abstract void updateWeights(WeightUpdateRule rule);

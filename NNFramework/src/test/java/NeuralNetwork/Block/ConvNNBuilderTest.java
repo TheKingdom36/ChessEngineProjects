@@ -10,33 +10,43 @@ import org.junit.Test;
 import NeuralNetwork.UtilityMethods;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
-class ConvNNBuilderTest {
+public class ConvNNBuilderTest {
 
-    @Test
+
     //increase number of hidden layers
+    @Test
     public void CreateMnistFFWithConvNNBuilder() throws IOException {
-        //TODO adjust weights to read in
         ConvNNBuilder builder = new ConvNNBuilder();
         DataSet trainingSet;
         DataSet testSet;
         int numOfNeurons = 128;
         Random rand = new Random();
 
-        Dim3Struct weights = new Dim3Struct(numOfNeurons,28*28,1);
-        double[] we = uniformDistribution.generateValues(numOfNeurons*28*28,0.1,-0.1);
-        UtilityMethods.PopulateDimStruct(weights,we);
+        Dim3Struct FCWeights = new Dim3Struct(numOfNeurons,2028,1);
+        double[] we = uniformDistribution.generateValues(numOfNeurons*2028,0.1,-0.1);
+        UtilityMethods.PopulateDimStruct(FCWeights,we);
+
+        ArrayList<Dim3Struct> ConvWeights= new ArrayList<>();
+        for(int i=0;i<3; i++){
+            Dim3Struct dim3Struct = new Dim3Struct(3,3,1);
+            double[] weightValues = uniformDistribution.generateValues(3*3*1,0.1,-0.1);
+            UtilityMethods.PopulateDimStruct(dim3Struct,weightValues);
+
+            ConvWeights.add(dim3Struct);
+        }
 
         Dim3Struct outputWeights = new Dim3Struct(10,numOfNeurons,1);
         we = uniformDistribution.generateValues(10*numOfNeurons,0.1,-0.1);
         UtilityMethods.PopulateDimStruct(outputWeights,we);
 
-        NeuralNetwork network = builder.addInputBlock(new Dim3Struct.Dims(28*28,1,1))
-                //.addConvBlock(10,new Sigmoid())
-                .addFullyConnectedBlock(numOfNeurons,new Sigmoid()).addWeights(weights)
+        NeuralNetwork network = builder.addInputBlock(new Dim3Struct.Dims(28,28,1))
+                .addConvBlock(1,0,3,3,3,new Sigmoid()).addWeights(ConvWeights)
+                .addFullyConnectedBlock(numOfNeurons,new Sigmoid()).addWeights(FCWeights)
                 .addOutputLayer(10,new MSE()).addWeights(outputWeights).withPostOperation(new SoftmaxOp())
                 .build();
 
@@ -50,7 +60,7 @@ class ConvNNBuilderTest {
         trainingSet = new DataSet();
         testSet = new DataSet();
 
-        DataSetSample[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/Block/data/train-labels.idx1-ubyte");
+        DataSetSample[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
         int trainSetSize = 29000;
         int testSetSize = 1000;
         for(int i=0;i<trainSetSize;i++){

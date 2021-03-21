@@ -14,14 +14,30 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
 
 
     @Override
-    protected void setupNeurons() {
-        neurons = new Dim3Struct(numBlockNeurons,1,1);
-    }
+    public void setUp(){
 
-    @Override
-    protected void generateFeatureBlWeights(Dim3Struct.Dims inputDims) {
+        if(preNeuronOperations.size() >0){
+            preNeuronOperations.get(0).doOp(new Dim3Struct(this.inputNeuronsDims));
+            for (int i=1 ; i<preNeuronOperations.size();i++){
+                preNeuronOperations.get(i).doOp(preNeuronOperations.get(i-1).getOutputNeurons());
+            }
+        }
 
-        weights = new Dim3Struct(neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getDepth(),1);
+        if(neurons ==null ){
+            neurons = new Dim3Struct(numBlockNeurons,1,1);
+        }
+        if(weights == null){
+
+            if(preNeuronOperations.size()>0) {
+                Dim3Struct neu = preNeuronOperations.get(preNeuronOperations.size()-1).getOutputNeurons();
+                weights = new Dim3Struct(neurons.totalNumOfValues() ,neu.getWidth() * neu.getLength() * neu.getDepth() ,1);
+            }else{
+                weights = new Dim3Struct(neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getDepth() ,1);
+
+            }
+        }
+
+        VerifyBlock();
     }
 
 

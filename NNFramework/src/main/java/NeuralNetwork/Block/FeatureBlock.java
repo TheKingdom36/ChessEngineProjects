@@ -28,24 +28,10 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
 
     }
 
-    @Override
-    public void setUp(){
-        if(neurons ==null ){
-            setupNeurons();
-        }
-        if(weights == null){
-            setupWeights();
-        }
-
-
-        VerifyBlock();
-    }
 
 
 
     public Dim3Struct calculate(Dim3Struct Input){
-
-
 
         neurons.clear();
         
@@ -71,21 +57,7 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
 
     }
 
-    @Override
-    protected void setupWeights() {
-        if(preNeuronOperations.size() >0){
-            preNeuronOperations.get(0).doOp(new Dim3Struct(this.inputNeuronsDims));
-            for (int i=1 ; i<preNeuronOperations.size();i++){
-                preNeuronOperations.get(i).doOp(preNeuronOperations.get(i-1).getOutputNeurons());
-            }
 
-            generateFeatureBlWeights(preNeuronOperations.get(preNeuronOperations.size()-1).getOutputNeurons().getDims());
-
-        }else {
-            generateFeatureBlWeights(this.inputNeuronsDims);
-        }
-
-    }
 
     public void calculateErrors(WeightBlock previousBlock, WeightBlock nextBlock){
 
@@ -155,8 +127,6 @@ public abstract class FeatureBlock<WeightsStruct> extends WeightBlock<WeightsStr
         calculate(new Dim3Struct(inputNeuronsDims));
     }
 
-
-    protected abstract void generateFeatureBlWeights(Dim3Struct.Dims inputDims);
 
     protected abstract WeightsStruct calculateWeightErrors(Dim3Struct neuronErrors,Dim3Struct inputNeurons);
 

@@ -112,7 +112,7 @@ public class Dim3Struct {
     }
 
     public void populate(double[] array){
-        if(values.length != width*length*depth){
+        if(array.length != width*length*depth){
             throw new IllegalArgumentException("The number of values must be equal to " + values.length );
         }
         int count = 0;

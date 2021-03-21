@@ -60,7 +60,7 @@ lossPerSample.clear();
             neuralNetwork.calculateWeightErrors();
             //update weights using SGD method
             neuralNetwork.updateWeights((double weightValue, double weightDelta)->(weightValue - this.learningRate*weightDelta));
-//            System.out.println(neuralNetwork.getOutputBlock().getWeightErrors().toString());
+//System.out.println(neuralNetwork.getOutputBlock().getWeightErrors().toString());
 
             //System.out.println("Weight error: "+ this.neuralNetwork.getOutputBlock().getWeightErrors());
             //System.out.println("weight error FC: " + this.neuralNetwork.Blocks.get(0).getWeightErrors());
