@@ -1,6 +1,6 @@
 package Events;
 
-import NeuralNetwork.Block.LearningRule;
+import NeuralNetwork.Learning.LearningRule;
 
 public class LearningEvent extends java.util.EventObject{
     LearningEvent.Type eventType;

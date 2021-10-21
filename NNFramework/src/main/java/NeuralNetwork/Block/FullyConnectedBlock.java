@@ -1,8 +1,9 @@
 package NeuralNetwork.Block;
 
 
-import NeuralNetwork.Block.ActivationFunctions.ActivationFunction;
+import NeuralNetwork.ActivationFunctions.ActivationFunction;
 import NeuralNetwork.Exceptions.DimensionMismatch;
+import NeuralNetwork.Utils.Dim3Struct;
 
 public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
 
@@ -16,25 +17,13 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
     @Override
     public void setUp(){
 
-        if(preNeuronOperations.size() >0){
-            preNeuronOperations.get(0).doOp(new Dim3Struct(this.inputNeuronsDims));
-            for (int i=1 ; i<preNeuronOperations.size();i++){
-                preNeuronOperations.get(i).doOp(preNeuronOperations.get(i-1).getOutputNeurons());
-            }
-        }
+
 
         if(neurons ==null ){
             neurons = new Dim3Struct(numBlockNeurons,1,1);
         }
         if(weights == null){
-
-            if(preNeuronOperations.size()>0) {
-                Dim3Struct neu = preNeuronOperations.get(preNeuronOperations.size()-1).getOutputNeurons();
-                weights = new Dim3Struct(neurons.totalNumOfValues() ,neu.getWidth() * neu.getLength() * neu.getDepth() ,1);
-            }else{
                 weights = new Dim3Struct(neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getDepth() ,1);
-
-            }
         }
 
         VerifyBlock();
@@ -59,8 +48,10 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
     protected Dim3Struct calculateWeightErrors(Dim3Struct neuronErrors,Dim3Struct inputNeurons) {
 
 
-        this.weightErrors = new Dim3Struct(weights.getDims());
 
+        if(weightErrors==null) {
+            this.weightErrors = new Dim3Struct(weights.getDims());
+        }
 
         for(int weightErrorWidth=0;weightErrorWidth<weightErrors.getWidth();weightErrorWidth++) {
             for(int weightErrorLen=0;weightErrorLen<weightErrors.getLength();weightErrorLen++) {
@@ -77,6 +68,7 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
 
         if(!(nextWeights instanceof Dim3Struct)){
             //connected to con layer just take the errors
+            //TODO
             return null;
         }else{
 
@@ -84,8 +76,9 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
                 throw new RuntimeException("The parameter can not be null");
             }
 
-            this.neuronErrors = new Dim3Struct(neurons.getDims());
-
+            if(neuronErrors==null) {
+                this.neuronErrors = new Dim3Struct(neurons.getDims());
+            }
             for(int neuronCount=0;neuronCount<neuronErrors.getWidth();neuronCount++) {
                 for (int inputDeltaCount = 0; inputDeltaCount < nextNeuronErrors.getWidth(); inputDeltaCount++) {
                     neuronErrors.getValues()[neuronCount][0][0] += nextNeuronErrors.getValues()[inputDeltaCount][0][0]*((Dim3Struct)nextWeights).getValues()[inputDeltaCount][neuronCount][0];
@@ -130,7 +123,7 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
     }
 
     @Override
-    protected void clearWeightErrors() {
+    public void clearWeightErrors() {
         weightErrors.clear();
     }
 

@@ -1,60 +1,31 @@
 package NeuralNetwork.Block;
 
-import NeuralNetwork.Block.ActivationFunctions.ActivationFunction;
-import NeuralNetwork.Block.Operations.BlockOperation;
+import NeuralNetwork.Operations.BlockOperation;
+import NeuralNetwork.Utils.Dim3Struct;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class WeightBlock<WeightsStruct> extends Block {
-
-    @Getter @Setter
-    protected WeightsStruct weights;
-
-    @Getter @Setter
-    protected WeightsStruct weightErrors;
-
-    @Getter @Setter
-    public Dim3Struct outputNeurons;
-
-    @Getter @Setter
-    protected Dim3Struct neuronErrors;
-    @Getter @Setter
-    protected Dim3Struct.Dims inputNeuronsDims;
-
-    protected List<BlockOperation> preNeuronOperations;
-
-    protected List<BlockOperation> postNeuronOperations;
-
-    public WeightBlock(Dim3Struct.Dims inputDims){
-        preNeuronOperations = new ArrayList<>();
-        postNeuronOperations = new ArrayList<>();
+public interface WeightBlock<Output,WeightsStruct> extends Block<Output> {
 
 
-        this.inputNeuronsDims = inputDims;
-    }
+    void clearWeightErrors();
 
-    public WeightBlock(){
+    void updateWeights(WeightUpdateRule rule);
 
-    }
+    WeightsStruct getWeights();
 
-    abstract Dim3Struct calculate(Dim3Struct input);
+    void setWeights(WeightsStruct weights);
 
-    public void addToPreNeuronOperations(BlockOperation blockOperation){
-        preNeuronOperations.add(blockOperation);
-    };
+    void calculateErrors(WeightBlock nextBlock,WeightBlock previousBlock);
 
-    public void addToPostNeuronOperations(BlockOperation blockOperation){
-        postNeuronOperations.add(blockOperation);
-    };
+    void resetErrors();
 
-    abstract void resetErrors();
+    void addToPostNeuronOperations(BlockOperation operation);
 
-    abstract void VerifyBlock();
+    Dim3Struct getNeuronErrors();
 
-    abstract void updateWeights(WeightUpdateRule rule);
 
-    public abstract void setUp();
 }

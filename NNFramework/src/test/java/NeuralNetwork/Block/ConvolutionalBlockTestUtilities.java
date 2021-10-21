@@ -1,5 +1,7 @@
 package NeuralNetwork.Block;
 
+import NeuralNetwork.Utils.Dim3Struct;
+
 import static org.junit.Assert.assertEquals;
 
 public class ConvolutionalBlockTestUtilities {

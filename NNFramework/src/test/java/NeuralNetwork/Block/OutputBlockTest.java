@@ -1,12 +1,10 @@
 package NeuralNetwork.Block;
 
-import NeuralNetwork.Block.Dim3Struct;
-import NeuralNetwork.Block.LossFunctions.MSE;
-import NeuralNetwork.Block.Operations.SoftmaxOp;
-import NeuralNetwork.Block.BasicOutputBlock;
-import NeuralNetwork.UtilityMethods;
-import org.junit.BeforeClass;
-import org.junit.jupiter.api.Test;
+import NeuralNetwork.LossFunctions.MSE;
+import NeuralNetwork.Operations.SoftmaxOp;
+import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.UtilityMethods;
+import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;

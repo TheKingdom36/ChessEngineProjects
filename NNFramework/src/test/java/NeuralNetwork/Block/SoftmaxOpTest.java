@@ -1,11 +1,8 @@
 package NeuralNetwork.Block;
 
-import NeuralNetwork.Block.Dim3Struct;
-
-import NeuralNetwork.Block.Operations.SoftmaxOp;
+import NeuralNetwork.Operations.SoftmaxOp;
+import NeuralNetwork.Utils.Dim3Struct;
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;

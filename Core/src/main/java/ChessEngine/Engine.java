@@ -3,22 +3,25 @@ package ChessEngine;
 import GameBoard.ChessBoard.Enums.Color;
 import GameBoard.ChessBoard.Moves.ChessMove;
 import MontoCarlo.MonteCarloTree;
-import NeuralNet.NNExamples.CNN3LayerNet;
-import NeuralNet.NNExamples.CNN3LayerNetWeights;
-import NeuralNet.Interfaces.INeuralNetwork;
 import ChessEngine.Util.*;
+import MontoCarlo.interfaces.PolicyPredictor;
 
+//TODO fix this class :{
+//Need mcst and policyPredictor which will be a nn
 
 public class Engine {
-    INeuralNetwork nn;
+   // INeuralNetwork nn;
     MonteCarloTree mcst;
+    PolicyPredictor predictor;
 
-    public Engine(){
-        nn = new CNN3LayerNet(new CNN3LayerNetWeights(true),AllPieceMoveOptions.getMoveOptions().size());
-        mcst = new MonteCarloTree(nn);
+    public Engine(PolicyPredictor predictor){
+        this.predictor = predictor;
+        this.mcst = new MonteCarloTree(predictor);
+       // nn = new CNN3LayerNet(new CNN3LayerNetWeights(true),AllPieceMoveOptions.getMoveOptions().size());
+      //  mcst = new MonteCarloTree(nn);
     }
 
-    public ChessMove FindBestMove(ChessBoardState chessBoardState){
+    public ChessMove FindBestMove(ChessBoardState chessBoardState) throws IllegalAccessException, InstantiationException {
         boolean isBlackMove=false;
 
         //input is always in perspective of the white player, moves are flipped for black player when outputting move

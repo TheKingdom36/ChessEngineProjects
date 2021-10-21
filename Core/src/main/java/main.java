@@ -16,16 +16,5 @@ public class main{
 
         ChessBoardState chessBoardState = new ChessBoardState(chessBoard, Color.White);
 
-        System.out.println("Hello");
-        int[] arr = {1,3,3};
-        int out = Arrays.stream(arr).max().getAsInt();
-        Arrays.stream(arr).max();
-
-
-
-
-
-
-
     }
 }

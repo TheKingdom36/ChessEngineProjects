@@ -15,6 +15,7 @@ import GameBoard.ChessBoard.Util.ChessPosStore;
 import ChessEngine.Util.*;
 import Common.Plane;
 import MontoCarlo.GameState;
+import MontoCarlo.NodeState;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
@@ -43,6 +44,10 @@ public class ChessBoardState extends GameState {
 
     }
 
+    @Override
+    public <State extends NodeState> State deepCopy() {
+        return null;
+    }
 
 
     public ChessBoardState(ChessBoardState chessBoardState){
@@ -311,7 +316,13 @@ public class ChessBoardState extends GameState {
 
     @Override
     public void nextPlayer() {
+//TODO
+    }
 
+    @Override
+    protected <State extends NodeState> State[] getAllPossibleStates(List<Move> movesList) {
+        //TODO
+        return null;
     }
 
 

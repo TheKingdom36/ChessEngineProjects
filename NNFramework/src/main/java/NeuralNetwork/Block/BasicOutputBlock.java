@@ -1,20 +1,51 @@
 package NeuralNetwork.Block;
 
-import NeuralNetwork.Block.Operations.BlockOperation;
+import NeuralNetwork.LossFunctions.LossFunction;
+import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Exceptions.DimensionMismatch;
+import NeuralNetwork.Operations.Operation;
+import NeuralNetwork.Utils.Dim3Struct;
+import lombok.Getter;
+import lombok.Setter;
 
-public class BasicOutputBlock extends OutputBlock<Dim3Struct> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class BasicOutputBlock implements OutputBlock<double[]> {
 
     private double[] expectedArray;
     int numOfBlockNeurons;
+    @Getter
+    Dim3Struct outputNeurons;
+    ArrayList<Operation> operations;
+    private LossFunction lossFunction;
+    @Getter @Setter
+    Dim3Struct weights;
+    protected List<BlockOperation> postNeuronOperations;
+    @Getter
+    Dim3Struct neurons;
+    @Getter
+    Dim3Struct weightErrors;
+    @Getter
+    Dim3Struct neuronErrors;
+
+    Dim3Struct.Dims inputNeuronsDims;
+
     public BasicOutputBlock(int numBlockNeurons, int numInputNeurons, LossFunction lossFunction){
-        super(new Dim3Struct.Dims(numInputNeurons,1,1),lossFunction);
+        inputNeuronsDims = new Dim3Struct.Dims(numInputNeurons,1,1) ;
         this.numOfBlockNeurons = numBlockNeurons;
+        this.lossFunction = lossFunction;
+        postNeuronOperations = new ArrayList<>();
     }
 
 
     @Override
-    protected void generateFeatureBlWeights(Dim3Struct.Dims inputDims) {
+    public void VerifyBlock() {
+
+    }
+
+
+    public void generateFeatureBlWeights(Dim3Struct.Dims inputDims) {
         weights = new Dim3Struct(neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getDepth(),1);
     }
 
@@ -22,41 +53,27 @@ public class BasicOutputBlock extends OutputBlock<Dim3Struct> {
     @Override
     public void setUp(){
 
-        if(preNeuronOperations.size() >0){
-            preNeuronOperations.get(0).doOp(new Dim3Struct(this.inputNeuronsDims));
-            for (int i=1 ; i<preNeuronOperations.size();i++){
-                preNeuronOperations.get(i).doOp(preNeuronOperations.get(i-1).getOutputNeurons());
-            }
-        }
+
 
         if(neurons ==null ){
             neurons = new Dim3Struct(numOfBlockNeurons,1,1);
         }
         if(weights == null){
-            if(preNeuronOperations.size()>0) {
-                Dim3Struct neu = preNeuronOperations.get(preNeuronOperations.size()-1).getOutputNeurons();
-
-                weights = new Dim3Struct(neurons.totalNumOfValues() ,neu.getWidth() * neu.getLength() * neu.getDepth() ,1);
-            }else{
                 weights = new Dim3Struct(neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getDepth() ,1);
-
-            }
         }
-
 
         VerifyBlock();
     }
 
-
+    @Override
     public Dim3Struct calculate(Dim3Struct Input){
 
         outputNeurons = Input.Copy();
         neurons.clear();
 
-        for(BlockOperation operation: preNeuronOperations){
-            outputNeurons = operation.doOp(outputNeurons);
-        }
-        outputNeurons = blockCalculation(outputNeurons).Copy();
+        outputNeurons = blockCalculation(outputNeurons);
+
+        neurons = outputNeurons.Copy();
 
         for(BlockOperation operation: postNeuronOperations){
             outputNeurons = operation.doOp(outputNeurons);
@@ -65,14 +82,32 @@ public class BasicOutputBlock extends OutputBlock<Dim3Struct> {
         return outputNeurons;
     }
 
+
     @Override
-    void resetErrors() {
+    public void updateWeights(WeightUpdateRule rule) {
+
+
+        for(int i=0;i<weights.getWidth();i++){
+            for(int j=0;j<weights.getLength();j++){
+                for(int k=0;k<weights.getDepth();k++){
+
+
+                    this.weights.getValues()[i][j][k] = rule.calculate(weights.getValues()[i][j][k],weightErrors.getValues()[i][j][k]);
+
+                }
+            }
+        }
 
     }
 
     @Override
-    void updateWeights(WeightUpdateRule rule) {
-        //TODO
+    public void setWeights(Object weights) {
+        this.weights = (Dim3Struct)weights;
+    }
+
+    @Override
+    public void calculateErrors(WeightBlock nextBlock ,WeightBlock previousBlock) {
+
     }
 
     public double calculateLossFunc(double[] expectedArray){
@@ -87,7 +122,11 @@ public class BasicOutputBlock extends OutputBlock<Dim3Struct> {
     }
 
     @Override
-    protected Dim3Struct blockCalculation(Dim3Struct inputNeurons) {
+    public double[] getOutput() {
+        return outputNeurons.toArray();
+    }
+
+    private Dim3Struct blockCalculation(Dim3Struct inputNeurons) {
         if(neurons.getWidth() != weights.getWidth() || inputNeurons.getWidth() != weights.getLength())
         {
 
@@ -117,8 +156,20 @@ public class BasicOutputBlock extends OutputBlock<Dim3Struct> {
     }
 
     @Override
-    protected void clearWeightErrors() {
-        //TODO
+    public void clearWeightErrors() {
+
+        weightErrors.clear();
+    }
+
+
+    @Override
+    public void resetErrors() {
+        neuronErrors.clear();
+    }
+
+    @Override
+    public void addToPostNeuronOperations(BlockOperation operation) {
+
     }
 
     @Override
@@ -131,11 +182,9 @@ public class BasicOutputBlock extends OutputBlock<Dim3Struct> {
             neuronErrors = postNeuronOperations.get(i).calculateDeltas(neuronErrors);
         }
 
-        weightErrors = calculateWeightErrors(neuronErrors,previousBlock.getOutputNeurons());
+        weightErrors = calculateWeightErrors(neuronErrors,(Dim3Struct) previousBlock.getOutputNeurons());
 
-        for(int i= preNeuronOperations.size()-1;i>0;i--){
-            neuronErrors = preNeuronOperations.get(i).calculateDeltas(neuronErrors);
-        }
+
     }
 
 

@@ -1,5 +1,5 @@
 rootProject.name = 'ChessEngineProjects'
 
-include('Board','MontoCarlo','NeuralNet','Core','Common')
-include 'NNFramework'
+include('Board','MontoCarlo','NeuralNet','Core','Common','NNFramework')
+
 

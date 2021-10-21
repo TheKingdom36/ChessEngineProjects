@@ -3,48 +3,48 @@ package MontoCarlo;
 
 
 import GameBoard.Common.Interfaces.Move;
-import MontoCarlo.interfaces.IMontoCarloTree;
+import MontoCarlo.interfaces.PolicyOutput;
+import MontoCarlo.interfaces.PolicyPredictor;
 import MontoCarlo.tree.Node;
 import MontoCarlo.tree.Tree;
-import NeuralNet.Interfaces.INeuralNetwork;
-import NeuralNet.Models.NNOutput;
 
 
-public class MonteCarloTree implements IMontoCarloTree {
+
+public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
 
     /**
      * Network used to evaluate board states
      */
-    INeuralNetwork nn;
+    PolicyPredictor predictor;
 
-    public MonteCarloTree(INeuralNetwork neuralNetwork) {
+    public MonteCarloTree(PolicyPredictor policyPredictor) {
 
-        nn = neuralNetwork;
+        predictor = policyPredictor;
 
     }
 
 
     /**
      * Returns the best found move from a given boardState
-     * @param gameState board state to be evlauated
-     * @param searchTime length of time the monto carlo search MontoCarlo.tree should search
+     * @param gameState board state to be evaluated
+     * @param searchTime length of time the monte carlo search MonteCarlo.tree should search
      * @return
      */
-    public Move findNextMove(GameState gameState, long searchTime) {
+    public Move findNextMove(GameState gameState, long searchTime) throws InstantiationException, IllegalAccessException {
 
         long start = System.currentTimeMillis();
         long end = start + searchTime;
 
-
-        Tree tree = new Tree();
-        Node rootNode = tree.getRoot();
-        ((Node) rootNode).setState(new State(gameState));
+        Node<GameState> rootNode = new Node<GameState>();
+        ((Node) rootNode).setState(gameState);
         rootNode.getState().setIsActive(true);
+
+        Tree tree = new Tree(rootNode);
 
         //Perform 4 step mcst process until time is exceeded
         MCSTProcess(gameState.getCurrentPlayerID(), end, rootNode);
         //child of root which has highest value is the winner
-        Node winnerNode = rootNode.getChildWithMaxScore();
+        Node<GameState> winnerNode = rootNode.getChildWithMaxScore();
 
         tree.setRoot(winnerNode);
 
@@ -55,21 +55,23 @@ public class MonteCarloTree implements IMontoCarloTree {
 
     /**
      * Returns a TrainingOutput with the best determined move fro mthe current BoardState
-     * @param gameState board state to be evlauated
-     * @param searchTime length of time the monto carlo search MontoCarlo.tree should search
-     * @return MontoCarloTrainingOutput which holds move object and genrated policy by monto carlo search MontoCarlo.tree
+     * @param gameState board state to be evaluated
+     * @param searchTime length of time the monte carlo search MonteCarlo.tree should search
+     * @return MonteCarloTrainingOutput which holds move object and generated policy by monte carlo search MonteCarlo.tree
      */
-    public MonteCarloTrainingOutput findNextMoveTraining(GameState gameState, long searchTime) {
+    public MonteCarloTrainingOutput findNextMoveTraining(GameState gameState, long searchTime) throws InstantiationException, IllegalAccessException {
 
         long start = System.currentTimeMillis();
         long end = start + searchTime;
 
 
         //set Up root of MonteCarlo.tree
-        Tree tree = new Tree();
-        Node rootNode = tree.getRoot();
-        rootNode.setState(new State(gameState));
+
+        Node<GameState> rootNode = new Node<GameState>();
+        ((Node) rootNode).setState(gameState);
         rootNode.getState().setIsActive(true);
+
+        Tree tree = new Tree(rootNode);
 
 
 
@@ -77,7 +79,7 @@ public class MonteCarloTree implements IMontoCarloTree {
         MCSTProcess(gameState.getCurrentPlayerID(), end, rootNode);
 
         //child of root which has highest value is the winner
-        Node winnerNode = rootNode.getChildWithMaxScore();
+        Node<GameState> winnerNode = rootNode.getChildWithMaxScore();
 
         tree.setRoot(winnerNode);
 
@@ -87,16 +89,16 @@ public class MonteCarloTree implements IMontoCarloTree {
 
 
         //final calculation of uct values to be returned as the generated policy
-        double[] genPolicy = new double[nn.getNumOfOutputNodes()];
+        double[] genPolicy = new double[predictor.getNumOfOutputNodes()];
         double genPolicyTotal=0;
 
-        for(Node child: rootNode.getChildArray()){
-            genPolicy[child.getState().getIdMove()] = UCT.uctValue(child.getState().getVisitCount(),child.getState().getWinScore(),child.getParent().getState().getVisitCount(),child.getState().getBestMoveProbability(),child.getState().getIsActive());
-            genPolicyTotal += genPolicy[child.getState().getIdMove()];
+        for(Node<GameState> child: rootNode.getChildArray()){
+            genPolicy[child.getState().getMoveID()] = UCT.uctValue(child.getState().getVisitCount(),child.getState().getWinScore(),child.getParent().getState().getVisitCount(),child.getState().getBestActionProbabilities(),child.getState().getIsActive());
+            genPolicyTotal += genPolicy[child.getState().getMoveID()];
         }
 
-        for(Node child: rootNode.getChildArray()){
-            genPolicy[child.getState().getIdMove()] =genPolicy[child.getState().getIdMove()]/genPolicyTotal;
+        for(Node<GameState> child: rootNode.getChildArray()){
+            genPolicy[child.getState().getMoveID()] =genPolicy[child.getState().getMoveID()]/genPolicyTotal;
 
         }
         output.getSample().setPolicy(genPolicy);
@@ -109,7 +111,7 @@ public class MonteCarloTree implements IMontoCarloTree {
     }
 
     private void MCSTProcess(int playerID, long endTime, Node rootNode) {
-        NNOutput nnOutput;
+        PolicyOutput policyOutput;
 
 
         while (System.currentTimeMillis() < endTime) {
@@ -124,21 +126,20 @@ public class MonteCarloTree implements IMontoCarloTree {
             expandNode(promisingNode);
 
             // Phase 3 - Neural Network evaluation
-            nnOutput = nn.evaluate(promisingNode.getState().getGameState().convertToNeuralNetInput());
-            AssignProbabilities(promisingNode, nnOutput.getProbabilities());
+            policyOutput = predictor.evaluate(promisingNode.getState());
+            AssignProbabilities(promisingNode, policyOutput.getProbabilities());
 
 
             // Phase 4 - Update
-
-            backPropagation(promisingNode, playerID, nnOutput);
+            backPropagation(promisingNode, playerID, policyOutput);
 
 
         }
     }
 
-    private void AssignProbabilities(Node node, double[] probabilities) {
-        for(Node child:node.getChildArray()){
-            child.getState().setBestMoveProbability(probabilities[child.getState().getIdMove()]);
+    private void AssignProbabilities(Node<GameState> node, double[] probabilities) {
+        for(Node<GameState> child:node.getChildArray()){
+            child.getState().setBestActionProbabilities(probabilities[child.getState().getMoveID()]);
         }
     }
 
@@ -147,7 +148,7 @@ public class MonteCarloTree implements IMontoCarloTree {
 
 
         while (node.getChildArray().size() != 0) {
-            node = UCT.findBestNodeWithUCT(node);
+            node = UCT.findNodeWithHighestUCT(node);
         }
 
         return node;
@@ -155,14 +156,14 @@ public class MonteCarloTree implements IMontoCarloTree {
 
     private void expandNode(Node node) {
 
-           State[] possibleStates = node.getState().getAllPossibleStates();
+           NodeState[] possibleNodeStates = node.getState().getAllPossibleStates();
 
            Node newNode;
 
-           for(State state: possibleStates){
+           for(NodeState nodeState : possibleNodeStates){
 
-               if(state.getIsActive()) {
-                   newNode = new Node(state);
+               if(nodeState.getIsActive()) {
+                   newNode = new Node(nodeState);
                    newNode.setParent(node);
                    node.getChildArray().add(newNode);
                }
@@ -170,13 +171,13 @@ public class MonteCarloTree implements IMontoCarloTree {
 
     }
 
-    private void backPropagation(Node nodeToExplore, int playerID, NNOutput nnOutput) {
-        Node tempNode = nodeToExplore;
+    private void backPropagation(Node nodeToExplore, int playerID, PolicyOutput policyOutput) {
+        Node<GameState> tempNode = nodeToExplore;
         while (tempNode != null) {
 
             tempNode.getState().incrementVisit();
-            if (tempNode.getState().getGameState().getCurrentPlayerID()== playerID)
-                tempNode.getState().updateWinScore(nnOutput.getWin_score());
+            if (tempNode.getState().getCurrentPlayerID()== playerID)
+                tempNode.getState().updateWinScore(policyOutput.getWinScore());
             tempNode = tempNode.getParent();
         }
     }

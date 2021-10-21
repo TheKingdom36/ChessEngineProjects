@@ -2,28 +2,31 @@ package NeuralNetwork.Block;
 
 
 
+import NeuralNetwork.Learning.LearningRule;
+import NeuralNetwork.Utils.DataSet;
+import NeuralNetwork.Utils.Dim3Struct;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 
-public class NeuralNetwork<L extends LearningRule> {
+public class NeuralNetwork<LRule extends LearningRule,Output> {
 
     @Getter @Setter
     InputBlock inputBlock;
     @Getter @Setter
-    BasicOutputBlock basicOutputBlock;
+    OutputBlock<Output> basicOutputBlock;
     @Getter
-    L learningRule;
+    LRule learningRule;
 
     ArrayList<FeatureBlock> Blocks = new ArrayList<>();
 
-    public double[] evaluate(Dim3Struct input) {
+    public Output evaluate(Dim3Struct input) {
 
 
-        inputBlock.setNeurons(input);
+        inputBlock.setOutputNeurons(input);
 
-        Blocks.get(0).calculate(inputBlock.getNeurons());
+        Blocks.get(0).calculate(inputBlock.getOutputNeurons());
 
         for (int i=1 ;i< Blocks.size() ;i++) {
             Blocks.get(i).calculate(Blocks.get(i-1).getOutputNeurons());
@@ -31,7 +34,7 @@ public class NeuralNetwork<L extends LearningRule> {
 
         basicOutputBlock.calculate(Blocks.get(Blocks.size()-1).getOutputNeurons());
 
-        return basicOutputBlock.getOutputNeurons().toArray();
+        return basicOutputBlock.getOutput();
     }
 
     public double loss(double[] expected){
@@ -42,16 +45,16 @@ public class NeuralNetwork<L extends LearningRule> {
         Blocks.add(block);
     }
 
-    public void learn(DataSet trainingSet ){
-        if (trainingSet == null) {
+    public void learn(DataSet dataSet){
+        if (dataSet == null) {
             throw new IllegalArgumentException("Training set is null!");
         }
 
-        learningRule.learn(trainingSet);
+        learningRule.learn(dataSet);
     }
 
-    public double[] evaluate(double[] inputs){
-        Dim3Struct dim3Struct = new Dim3Struct(inputBlock.getNeurons().getDims());
+    public Output evaluate(double[] inputs){
+        Dim3Struct dim3Struct = new Dim3Struct(inputBlock.getOutputNeurons().getDims());
         dim3Struct.populate(inputs);
         return evaluate(dim3Struct);
     }
@@ -61,7 +64,7 @@ public class NeuralNetwork<L extends LearningRule> {
      *
      * @param learningRule learning algorithm for this network
      */
-    public void setLearningRule(L learningRule) {
+    public void setLearningRule(LRule learningRule) {
         if (learningRule == null) {
             throw new IllegalArgumentException("Learning rule can't be null!");
         }
@@ -72,6 +75,7 @@ public class NeuralNetwork<L extends LearningRule> {
 
 
     public void calculateWeightErrors() {
+
       basicOutputBlock.calculateErrors(Blocks.get(Blocks.size()-1));
 
 
@@ -81,9 +85,12 @@ public class NeuralNetwork<L extends LearningRule> {
             Blocks.get(Blocks.size() - 1).calculateErrors(Blocks.get(Blocks.size() -2 ), basicOutputBlock);
 
 
-          for(int i=Blocks.size()-2;i>=0;i--){
+          for(int i=Blocks.size()-2;i>=1;i--){
               Blocks.get(i).calculateErrors(Blocks.get(i-1),Blocks.get(i+1));
           }
+
+          Blocks.get(0).calculateErrors(inputBlock,Blocks.get(1) );
+
       }
     }
 

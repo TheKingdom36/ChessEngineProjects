@@ -22,19 +22,19 @@ public class UCT {
         }
     }
 
-    static Node findBestNodeWithUCT(Node node) {
+    static Node findNodeWithHighestUCT(Node node) {
         int parentVisit = node.getState().getVisitCount();
 
         List<Node> activeNodes = new ArrayList<>();
 
-        for(Node child: node.getChildArray()){
-            if(child.getState().getIsActive()==true){
-                activeNodes.add(child);
+        for(Object child: node.getChildArray()){
+            if(((Node)child).getState().getIsActive()==true){
+                activeNodes.add((Node)child);
             }
         }
 
         return Collections.max(
                 activeNodes,
-                Comparator.comparing(c -> uctValue(parentVisit, c.getState().getWinScore(), c.getState().getVisitCount(),c.getState().getBestMoveProbability(),c.getState().getIsActive())));
+                Comparator.comparing(c -> uctValue(parentVisit, c.getState().getWinScore(), c.getState().getVisitCount(),c.getState().getBestActionProbabilities(),c.getState().getIsActive())));
     }
 }

@@ -1,14 +1,20 @@
 package NeuralNetwork.Block;
 
-import NeuralNetwork.Block.ActivationFunctions.ReLU;
-import NeuralNetwork.Block.ActivationFunctions.Sigmoid;
-import NeuralNetwork.Block.LossFunctions.MSE;
-import NeuralNetwork.Block.Mnist.MnistDataReaderDataSet;
-import NeuralNetwork.Block.NNBuilders.NNBuilder;
-import NeuralNetwork.Block.Operations.SoftmaxOp;
-import NeuralNetwork.Block.WeightIntializers.Xavier;
-import NeuralNetwork.Block.WeightIntializers.uniformDistribution;
-import NeuralNetwork.UtilityMethods;
+import Events.LearningEvent;
+import Events.LearningEventListener;
+import NeuralNetwork.ActivationFunctions.ReLU;
+import NeuralNetwork.ActivationFunctions.Sigmoid;
+import NeuralNetwork.Learning.SGD;
+import NeuralNetwork.LossFunctions.MSE;
+import NeuralNetwork.Mnist.MnistDataReaderDataSet;
+import NeuralNetwork.NNBuilders.NNBuilder;
+import NeuralNetwork.Operations.SoftmaxOp;
+import NeuralNetwork.Utils.DataSet;
+import NeuralNetwork.Utils.DataSetRow;
+import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.WeightIntializers.Xavier;
+import NeuralNetwork.WeightIntializers.uniformDistribution;
+import NeuralNetwork.Utils.UtilityMethods;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -76,19 +82,42 @@ public class TestNNBuilder {
                 .addOutputLayer(10,new MSE()).addWeights(outputWeights).withPostOperation(new SoftmaxOp())
                 .build();
 
-        SGD sgd = new SGD();
-        sgd.setMaxIterations(5);
-        sgd.setLearningRate(0.01);
-        network.setLearningRule(sgd);
-
         MnistDataReaderDataSet reader = new MnistDataReaderDataSet();
-
+        DataSet set = new DataSet();
         trainingSet = new DataSet();
         testSet = new DataSet();
 
-        DataSetSample[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
-        int trainSetSize = 29000;
-        int testSetSize = 1000;
+        DataSetRow[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
+        int trainSetSize = 2000;
+        int testSetSize = 100;
+
+        SGD sgd = new SGD();
+        sgd.setMaxIterations(5);
+        sgd.setLearningRate(0.01);
+
+        sgd.addListener(new LearningEventListener() {
+            @Override
+            public void handleLearningEvent(LearningEvent event) {
+                if(event.getEventType() == LearningEvent.Type.EPOCH_ENDED){
+                    double totalLoss = 0;
+                    for(int i=0;i<testSetSize;i++) {
+                        double[] result = (double[])network.evaluate(testSet.getSamples().get(i).getInput());
+
+                        double loss = network.loss(testSet.getSamples().get(i).getExpectedOutput());
+
+                        totalLoss += loss;
+                    }
+
+                    System.out.println("Epoch total loss " + totalLoss);
+                }
+            }
+        });
+
+        network.setLearningRule(sgd);
+
+
+
+
         for(int i=0;i<trainSetSize;i++){
             trainingSet.add(samples[i]);
         }
@@ -99,18 +128,7 @@ public class TestNNBuilder {
 
         network.learn(trainingSet);
 
-for(int i=0;i<testSetSize;i++) {
-    System.out.println("Test: " + i);
-    double[] result = network.evaluate(testSet.getSamples().get(i).getInput());
-    for (int j = 0; j < 10; j++) {
-        System.out.print(result[j] + " ");
-    }
-    System.out.println();
-    for (int j = 0; j < 10; j++) {
-        System.out.print(testSet.getSamples().get(i).getExpectedOutput()[j]+" ");
 
-    }
-}
         assertEquals(0,1);
     }
 
@@ -146,19 +164,70 @@ for(int i=0;i<testSetSize;i++) {
                 .addOutputLayer(10,new MSE()).addWeights(outputWeights)
                 .build();
 
-        SGD sgd = new SGD();
-        sgd.setMaxIterations(5);
-        sgd.setLearningRate(0.01);
-        network.setLearningRule(sgd);
-
         MnistDataReaderDataSet reader = new MnistDataReaderDataSet();
-
+        DataSet set = new DataSet();
         trainingSet = new DataSet();
         testSet = new DataSet();
 
-        DataSetSample[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/Block/data/train-labels.idx1-ubyte");
-        int trainSetSize = 29000;
-        int testSetSize = 1000;
+        DataSetRow[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
+        int trainSetSize = 2000;
+        int testSetSize = 100;
+
+        SGD sgd = new SGD();
+        sgd.setMaxIterations(5);
+        sgd.setLearningRate(0.01);
+
+        sgd.addListener(new LearningEventListener() {
+            @Override
+            public void handleLearningEvent(LearningEvent event) {
+                if(event.getEventType() == LearningEvent.Type.EPOCH_ENDED){
+                    double totalLoss = 0;
+
+                    int correctCount=0;
+                    int incorrectCount=0;
+                    for(int i=0;i<testSetSize;i++) {
+
+                        double[] result = (double[]) network.evaluate(testSet.getSamples().get(i).getInput());
+
+                        int highest =0;
+
+                        for(int r=1;r<result.length;r++){
+                            if(result[highest]<result[r]){
+                                highest = r;
+                            }
+                        }
+
+                        double loss = network.loss(testSet.getSamples().get(i).getExpectedOutput());
+                        totalLoss += loss;
+
+                        int expected=0;
+                        for(int e=0;e<testSet.getSamples().get(i).getExpectedOutput().length;e++){
+                            if(testSet.getSamples().get(i).getExpectedOutput()[e]==1){
+                                expected=e;
+                                break;
+                            }
+                        }
+
+                        if(highest == expected){
+                            correctCount++;
+                        }else {
+                            incorrectCount++;
+                        }
+                    }
+
+                    System.out.println("Epoch total loss " + totalLoss);
+                    System.out.println("Correct" + correctCount);
+                    System.out.println("Incorrect "+incorrectCount);
+                }
+            }
+        });
+
+
+        network.setLearningRule(sgd);
+
+
+
+
         for(int i=0;i<trainSetSize;i++){
             trainingSet.add(samples[i]);
         }
@@ -169,18 +238,7 @@ for(int i=0;i<testSetSize;i++) {
 
         network.learn(trainingSet);
 
-        for(int i=0;i<testSetSize;i++) {
-            System.out.println("Test: " + i);
-            double[] result = network.evaluate(testSet.getSamples().get(i).getInput());
-            for (int j = 0; j < 10; j++) {
-                System.out.print(result[j] + " ");
-            }
-            System.out.println();
-            for (int j = 0; j < 10; j++) {
-                System.out.print(testSet.getSamples().get(i).getExpectedOutput()[j]+" ");
 
-            }
-        }
         assertEquals(0,1);
     }
 
@@ -230,10 +288,10 @@ for(int i=0;i<testSetSize;i++) {
 
         network.learn(set);
 
-        System.out.println("Test 1 "+network.evaluate(inputArray1)[0]);
-        System.out.println("Test 2 "+network.evaluate(inputArray2)[0]);
-        System.out.println("Test 3 "+network.evaluate(inputArray3)[0]);
-        System.out.println("Test 4 "+network.evaluate(inputArray4)[0]);
+        System.out.println("Test 1 "+((double[])network.evaluate(inputArray1))[0]);
+        System.out.println("Test 2 "+((double[])network.evaluate(inputArray2))[0]);
+        System.out.println("Test 3 "+((double[])network.evaluate(inputArray3))[0]);
+        System.out.println("Test 4 "+((double[])network.evaluate(inputArray4))[0]);
 
 
         assertEquals(0,1);

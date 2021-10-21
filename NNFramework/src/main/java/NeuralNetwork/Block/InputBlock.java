@@ -1,12 +1,38 @@
 package NeuralNetwork.Block;
 
-public class InputBlock extends Block{
+import NeuralNetwork.Utils.Dim3Struct;
+import lombok.Getter;
+import lombok.Setter;
 
 
+public class InputBlock implements Block<Dim3Struct> {
+
+    @Getter @Setter
+Dim3Struct outputNeurons;
 
 public InputBlock(Dim3Struct.Dims inputSize){
-    this.neurons = new Dim3Struct(inputSize);
+    outputNeurons = new Dim3Struct(inputSize);
 }
 
 
+    @Override
+    public void VerifyBlock() {
+
+    }
+
+    @Override
+    public Dim3Struct calculate(Dim3Struct input) {
+    outputNeurons = input.Copy();
+        return outputNeurons;
+    }
+
+    @Override
+    public void setUp() {
+
+    }
+
+    @Override
+    public Dim3Struct getOutputNeurons() {
+        return outputNeurons;
+    }
 }
