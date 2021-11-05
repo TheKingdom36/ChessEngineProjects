@@ -12,19 +12,19 @@ public interface Board<GameMove> extends Comparable<Board> {
 
     void setMoveLog(MoveLog moveLog);
 
-    List<ChessMove> GetAllAvailableMoves(Color color);
+    List<ChessMove> getAllAvailableMoves(Color color);
 
-    void UndoMove(GameMove Move);
+    void undoMove(GameMove Move);
 
-    void UpdateBoard(GameMove Move);
+    void updateBoard(GameMove Move);
 
-    void PrintBoard();
+    void printBoard();
 
-    void Reset();
+    void reset();
 
-    void Setup();
+    void setup();
 
-    ChessBoard Copy();
+    ChessBoard copy();
 
     @Override
     int compareTo(Board otherBoard);

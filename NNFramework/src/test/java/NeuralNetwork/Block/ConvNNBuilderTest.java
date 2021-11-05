@@ -3,17 +3,18 @@ package NeuralNetwork.Block;
 import Events.LearningEvent;
 import Events.LearningEventListener;
 import NeuralNetwork.ActivationFunctions.ReLU;
+import NeuralNetwork.Block.Output.BasicOutput;
+import NeuralNetwork.Block.Output.BasicOutputBlock;
+import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Learning.SGD;
 import NeuralNetwork.LossFunctions.MSE;
 import NeuralNetwork.Mnist.MnistDataReaderDataSet;
 import NeuralNetwork.NNBuilders.ConvNNBuilder;
+import NeuralNetwork.Networks.ConvNetwork;
 import NeuralNetwork.Operations.SoftmaxOp;
-import NeuralNetwork.Utils.DataSet;
-import NeuralNetwork.Utils.DataSetRow;
-import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.*;
 import NeuralNetwork.WeightIntializers.uniformDistribution;
 import org.junit.Test;
-import NeuralNetwork.Utils.UtilityMethods;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public class ConvNNBuilderTest {
     @Test
     public void CreateMnistConvWithConvNNBuilder() throws IOException {
         ConvNNBuilder builder = new ConvNNBuilder();
-        DataSet trainingSet;
-        DataSet testSet;
+        NetworkDataSet trainingSet;
+        NetworkDataSet testSet;
         int numOfNeurons = 128;
         Random rand = new Random();
 
@@ -50,19 +51,21 @@ public class ConvNNBuilderTest {
         we = uniformDistribution.generateValues(10*numOfNeurons,0.1,-0.1);
         UtilityMethods.PopulateDimStruct(outputWeights,we);
 
-        NeuralNetwork network = builder.addInputBlock(new Dim3Struct.Dims(28,28,1))
+
+
+        ConvNetwork network = new ConvNetwork.builder().addInputBlock(new Dim3Struct.Dims(28,28,1))
                 .addConvBlock(1,0,3,3,3,new ReLU()).addWeights(convWeights)
                 .addFullyConnectedBlock(numOfNeurons,new ReLU()).addWeights(FCWeights)
-                .addOutputLayer(10,new MSE()).addWeights(outputWeights).withPostOperation(new SoftmaxOp())
+                .addOutputBlock(10,new MSE())
+                .addWeights(outputWeights).withPostOperation(new SoftmaxOp())
                 .build();
 
         MnistDataReaderDataSet reader = new MnistDataReaderDataSet();
 
-        trainingSet = new DataSet();
-        testSet = new DataSet();
+        trainingSet = new NetworkDataSet();
+        testSet = new NetworkDataSet();
 
-        DataSetRow[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
-        int trainSetSize = 10000;
+        int trainSetSize = 59000;
         int testSetSize = 1000;
 
         SGD sgd = new SGD();
@@ -78,8 +81,7 @@ public class ConvNNBuilderTest {
                 int correctCount=0;
                 int incorrectCount=0;
                 for(int i=0;i<testSetSize;i++) {
-
-                    double[] result = (double[]) (network.evaluate(testSet.getSamples().get(i).getInput()));
+                    double[] result = network.evaluate(testSet.getSample(i).getInput()).get(0);
 
                     int highest =0;
 
@@ -93,8 +95,8 @@ public class ConvNNBuilderTest {
                     totalLoss += loss;
 
                     int expected=0;
-                    for(int e=0;e<testSet.getSamples().get(i).getExpectedOutput().length;e++){
-                        if(testSet.getSamples().get(i).getExpectedOutput()[e]==1){
+                    for(int e=0;e<testSet.getSamples().get(i).getExpectedOutput().get(0).length;e++){
+                        if(testSet.getSamples().get(i).getExpectedOutput().get(0)[e]==1){
                             expected=e;
                             break;
                         }
@@ -118,6 +120,7 @@ public class ConvNNBuilderTest {
 
 
 
+        NetworkRow[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
 
         for(int i=0;i<trainSetSize;i++){
             trainingSet.add(samples[i]);

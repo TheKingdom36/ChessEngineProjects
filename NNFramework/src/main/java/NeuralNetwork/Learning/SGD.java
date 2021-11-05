@@ -1,10 +1,9 @@
 package NeuralNetwork.Learning;
 
 
-import NeuralNetwork.Block.NeuralNetwork;
-import NeuralNetwork.Learning.IterativeLearning;
-import NeuralNetwork.Utils.DataSet;
-import NeuralNetwork.Utils.DataSetRow;
+import NeuralNetwork.Block.PolicyNeuralNetwork;
+import NeuralNetwork.Block.ValuePolicyNetwork;
+import NeuralNetwork.Utils.*;
 
 import java.util.Iterator;
 
@@ -33,11 +32,11 @@ public class SGD extends IterativeLearning {
 
 
     @Override
-    public void doLearningEpoch(DataSet trainingSet) {
+    public void doLearningEpoch(NetworkDataSet trainingSet) {
 
 
-        DataSetRow sample;
-        Iterator<DataSetRow> iterator = trainingSet.iterator();
+        NetworkRow sample;
+        Iterator<NetworkRow> iterator = trainingSet.iterator();
         int count =0;
         while (iterator.hasNext()) {
 
@@ -45,24 +44,25 @@ public class SGD extends IterativeLearning {
 
 
             //go through network
-            double[] neuralNetworkOutput = (double[]) neuralNetwork.evaluate(sample.getInput());
+            (NeuralNetwork).evaluate((sample).getInput());
+
 
 
             //System.out.println(neuralNetwork.Blocks.get(0).getOutputNeurons());
             //grab loss
-            neuralNetwork.loss(sample.getExpectedOutput());
+            (NeuralNetwork).loss((sample).getExpectedOutput());
 
            //System.out.println("Loss per sample: " + neuralNetwork.loss(sample.getExpectedOutput()));
 
             //calculate change in weights
-            neuralNetwork.calculateWeightErrors();
+            NeuralNetwork.calculateWeightErrors();
 
 
             //update weights using SGD method
-            neuralNetwork.updateWeights((double weightValue, double weightDelta)->(weightValue - this.learningRate*weightDelta));
+            NeuralNetwork.updateWeights((double weightValue,double weightDelta)->(weightValue - this.learningRate*weightDelta));
 
             count++;
-            neuralNetwork.resetErrors();
+            NeuralNetwork.resetErrors();
         }
     }
 }

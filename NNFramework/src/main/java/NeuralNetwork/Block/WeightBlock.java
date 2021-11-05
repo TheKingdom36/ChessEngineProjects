@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface WeightBlock<Output,WeightsStruct> extends Block<Output> {
+public interface WeightBlock<WeightsStruct,Output> extends Block<Output> {
 
 
     void clearWeightErrors();

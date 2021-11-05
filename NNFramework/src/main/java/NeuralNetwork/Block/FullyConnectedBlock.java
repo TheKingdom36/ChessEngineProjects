@@ -26,7 +26,7 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
                 weights = new Dim3Struct(neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getDepth() ,1);
         }
 
-        VerifyBlock();
+        verifyBlock();
     }
 
 
@@ -120,6 +120,11 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
 
         return neurons;
 
+    }
+
+    @Override
+    public Dim3Struct getOutput(){
+        return outputNeurons;
     }
 
     @Override

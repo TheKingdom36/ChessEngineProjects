@@ -27,14 +27,14 @@ public class UCT {
 
         List<Node> activeNodes = new ArrayList<>();
 
-        for(Object child: node.getChildArray()){
-            if(((Node)child).getState().getIsActive()==true){
+        for(Node child: (List<Node>)node.getChildArray()){
+            if(child.getIsActive()==true){
                 activeNodes.add((Node)child);
             }
         }
 
         return Collections.max(
                 activeNodes,
-                Comparator.comparing(c -> uctValue(parentVisit, c.getState().getWinScore(), c.getState().getVisitCount(),c.getState().getBestActionProbabilities(),c.getState().getIsActive())));
+                Comparator.comparing(c -> uctValue(parentVisit, c.getState().getWinScore(), c.getState().getVisitCount(),c.getState().getBestActionProbabilities(),c.getIsActive())));
     }
 }

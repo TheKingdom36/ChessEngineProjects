@@ -2,8 +2,11 @@ package NeuralNetwork.Learning;
 
 import Events.LearningEvent;
 import Events.LearningEventListener;
-import NeuralNetwork.Block.NeuralNetwork;
+import NeuralNetwork.Block.INeuralNetwork;
+import NeuralNetwork.Block.PolicyNeuralNetwork;
 import NeuralNetwork.Utils.DataSet;
+import NeuralNetwork.Utils.NetworkDataSet;
+import NeuralNetwork.Utils.NetworkRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +26,12 @@ abstract public class LearningRule implements Serializable {
     /**
      * Neural network to train
      */
-    protected NeuralNetwork<?,?> neuralNetwork;
+    protected INeuralNetwork<?,List<double[]>> NeuralNetwork;
 
     /**
      * Training data set
      */
-    protected transient DataSet trainingSet;
+    protected transient NetworkDataSet trainingSet;
 
 
 
@@ -56,7 +59,7 @@ abstract public class LearningRule implements Serializable {
      *
      * @param trainingSet training set for this learning rule
      */
-    public void setTrainingSet(DataSet trainingSet) {
+    public void setTrainingSet(NetworkDataSet trainingSet) {
         this.trainingSet = trainingSet;
     }
 
@@ -74,8 +77,8 @@ abstract public class LearningRule implements Serializable {
      *
      * @return neural network
      */
-    public NeuralNetwork getNeuralNetwork() {
-        return neuralNetwork;
+    public INeuralNetwork getNeuralNetwork() {
+        return NeuralNetwork;
     }
 
     /**
@@ -83,8 +86,8 @@ abstract public class LearningRule implements Serializable {
      *
      * @param neuralNetwork neural network for this learning rule
      */
-    public void setNeuralNetwork(NeuralNetwork neuralNetwork) {
-        this.neuralNetwork = neuralNetwork;
+    public void setNeuralNetwork(INeuralNetwork neuralNetwork) {
+        this.NeuralNetwork = neuralNetwork;
     }
 
     /**
@@ -157,5 +160,5 @@ abstract public class LearningRule implements Serializable {
      *
      * @param trainingSet training set
      */
-    abstract public void learn(DataSet trainingSet);
+    abstract public void learn(NetworkDataSet trainingSet);
 }

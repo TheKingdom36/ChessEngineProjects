@@ -141,6 +141,10 @@ public class Dim3Struct {
         return array;
     }
 
+    public void setValue(double value,int width,int height,int depth){
+        values[width][height][depth] = value;
+    }
+
     public int totalNumOfValues(){
         return width*length*depth;
     }

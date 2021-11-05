@@ -4,13 +4,14 @@ import Events.LearningEvent;
 import Events.LearningEventListener;
 import NeuralNetwork.ActivationFunctions.ReLU;
 import NeuralNetwork.ActivationFunctions.Sigmoid;
+import NeuralNetwork.Learning.LearningRule;
 import NeuralNetwork.Learning.SGD;
 import NeuralNetwork.LossFunctions.MSE;
 import NeuralNetwork.Mnist.MnistDataReaderDataSet;
 import NeuralNetwork.NNBuilders.NNBuilder;
 import NeuralNetwork.Operations.SoftmaxOp;
 import NeuralNetwork.Utils.DataSet;
-import NeuralNetwork.Utils.DataSetRow;
+import NeuralNetwork.Utils.PolicyDataSetRow;
 import NeuralNetwork.Utils.Dim3Struct;
 import NeuralNetwork.WeightIntializers.Xavier;
 import NeuralNetwork.WeightIntializers.uniformDistribution;
@@ -23,7 +24,7 @@ import java.util.Random;
 import static org.junit.Assert.assertEquals;
 
 public class TestNNBuilder {
-    @Test
+ /*   @Test
     public void CreateOneLayerFFWithNNBuilder(){
         NNBuilder builder = new NNBuilder();
 
@@ -36,9 +37,9 @@ public class TestNNBuilder {
         double[] outputWeightsValues = {0.1,.2,0.4,0.5,0.8,0.9,0.7,0.8,0.2};
         UtilityMethods.PopulateDimStruct(outputWeights, outputWeightsValues);
 
-        NeuralNetwork network = builder.addInputBlock(new Dim3Struct.Dims(4,1,1))
+        BasicNetwork network = builder.addInputBlock(new Dim3Struct.Dims(4,1,1))
                 .addFullyConnectedBlock(3,new ReLU()).addWeights(weights)
-                .addOutputLayer(3,new MSE()).addWeights(outputWeights)
+                .addPolicyOutputBlock(3,new MSE()).addWeights(outputWeights)
                 .build();
 
         SGD sgd = new SGD();
@@ -48,13 +49,15 @@ public class TestNNBuilder {
 
         DataSet set = new DataSet();
         set.setSampleInputSize(4);
-        set.setSampleExpectedOutputSize(3);
+
 
         double[] inputArray = {0.1,0.1,0.1,0.1};
         double[] expectedArray = {1,1,1};
-        set.add(inputArray,expectedArray);
-        set.add(inputArray,expectedArray);
-        network.learn(set);
+
+        PolicyDataSetRow newRow = new PolicyDataSetRow(inputArray,expectedArray);
+
+        set.add(newRow);
+       // network.learn(set);
 
         assertEquals(0,1);
     }
@@ -64,8 +67,8 @@ public class TestNNBuilder {
     public void CreateMnistFFWithNNBuilder() throws IOException {
         //TODO adjust weights to read in
         NNBuilder builder = new NNBuilder();
-        DataSet trainingSet;
-        DataSet testSet;
+        DataSet<PolicyDataSetRow> trainingSet;
+        DataSet<PolicyDataSetRow> testSet;
         int numOfNeurons = 128;
         Random rand = new Random();
 
@@ -77,17 +80,16 @@ public class TestNNBuilder {
         we = uniformDistribution.generateValues(10*numOfNeurons,0.1,-0.1);
         UtilityMethods.PopulateDimStruct(outputWeights,we);
 
-        NeuralNetwork network = builder.addInputBlock(new Dim3Struct.Dims(28*28,1,1))
+        BasicNetwork<LearningRule,double[]> network = builder.addInputBlock(new Dim3Struct.Dims(28*28,1,1))
                 .addFullyConnectedBlock(numOfNeurons,new Sigmoid()).addWeights(weights)
-                .addOutputLayer(10,new MSE()).addWeights(outputWeights).withPostOperation(new SoftmaxOp())
+                .addPolicyOutputBlock(10,new MSE()).addWeights(outputWeights).withPostOperation(new SoftmaxOp())
                 .build();
 
         MnistDataReaderDataSet reader = new MnistDataReaderDataSet();
-        DataSet set = new DataSet();
         trainingSet = new DataSet();
         testSet = new DataSet();
 
-        DataSetRow[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
+        PolicyDataSetRow[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
         int trainSetSize = 2000;
         int testSetSize = 100;
 
@@ -101,7 +103,7 @@ public class TestNNBuilder {
                 if(event.getEventType() == LearningEvent.Type.EPOCH_ENDED){
                     double totalLoss = 0;
                     for(int i=0;i<testSetSize;i++) {
-                        double[] result = (double[])network.evaluate(testSet.getSamples().get(i).getInput());
+                        double[] result = network.evaluate(testSet.getSamples().get(i).getInput());
 
                         double loss = network.loss(testSet.getSamples().get(i).getExpectedOutput());
 
@@ -137,8 +139,8 @@ public class TestNNBuilder {
     public void CreateMnistFFWithNNBuilder2Layers() throws IOException {
         //TODO adjust weightsLayer1 to read in
         NNBuilder builder = new NNBuilder();
-        DataSet trainingSet;
-        DataSet testSet;
+        DataSet<PolicyDataSetRow> trainingSet;
+        DataSet<PolicyDataSetRow> testSet;
         int numOfNeuronsLayer1 = 128;
         int numOfNeuronsLayer2 = 128;
 
@@ -158,18 +160,19 @@ public class TestNNBuilder {
         we = Xavier.generateValues(10*numOfNeuronsLayer2,10,numOfNeuronsLayer2);
         UtilityMethods.PopulateDimStruct(outputWeights,we);
 
-        NeuralNetwork network = builder.addInputBlock(new Dim3Struct.Dims(28*28,1,1))
+        BasicNetwork<LearningRule,double[]> network = builder.addInputBlock(new Dim3Struct.Dims(28*28,1,1))
                 .addFullyConnectedBlock(numOfNeuronsLayer1,new ReLU()).addWeights(weightsLayer1)
                 .addFullyConnectedBlock(numOfNeuronsLayer2,new ReLU()).addWeights(weightsLayer2)
-                .addOutputLayer(10,new MSE()).addWeights(outputWeights)
+                .addPolicyOutputBlock(10,new MSE()).addWeights(outputWeights)
                 .build();
 
+
+
         MnistDataReaderDataSet reader = new MnistDataReaderDataSet();
-        DataSet set = new DataSet();
         trainingSet = new DataSet();
         testSet = new DataSet();
 
-        DataSetRow[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
+        PolicyDataSetRow[] samples = reader.readData("C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-images.idx3-ubyte", "C:/Users/danielmurphy/IntelljProjects/ChessEngineProjects/NNFramework/src/test/java/NeuralNetwork/Block/data/train-labels.idx1-ubyte");
         int trainSetSize = 2000;
         int testSetSize = 100;
 
@@ -187,7 +190,7 @@ public class TestNNBuilder {
                     int incorrectCount=0;
                     for(int i=0;i<testSetSize;i++) {
 
-                        double[] result = (double[]) network.evaluate(testSet.getSamples().get(i).getInput());
+                        double[] result = network.evaluate(testSet.getSamples().get(i).getInput());
 
                         int highest =0;
 
@@ -256,9 +259,9 @@ public class TestNNBuilder {
         double[] outputWeightsValues = {0.01,0.02,0.03,0.01,0.01,0.02};
         UtilityMethods.PopulateDimStruct(outputWeights, outputWeightsValues);
 
-        NeuralNetwork network = builder.addInputBlock(new Dim3Struct.Dims(2,1,1))
+        BasicNetwork network = builder.addInputBlock(new Dim3Struct.Dims(2,1,1))
                 .addFullyConnectedBlock(6,new Sigmoid()).addWeights(weights2)
-                .addOutputLayer(1,new MSE()).addWeights(outputWeights)
+                .addPolicyOutputBlock(1,new MSE()).addWeights(outputWeights)
                 .build();
 
         SGD sgd = new SGD();
@@ -281,10 +284,10 @@ public class TestNNBuilder {
         double[] inputArray4 = {1,1};
         double[] expectedArray4 = {0};
 
-        set.add(inputArray1,expectedArray1);
-        set.add(inputArray2,expectedArray2);
-        set.add(inputArray3,expectedArray3);
-        set.add(inputArray4,expectedArray4);
+        set.add(new PolicyDataSetRow(inputArray1,expectedArray1));
+        set.add(new PolicyDataSetRow(inputArray2,expectedArray2));
+        set.add(new PolicyDataSetRow(inputArray3,expectedArray3));
+        set.add(new PolicyDataSetRow(inputArray4,expectedArray4));
 
         network.learn(set);
 
@@ -310,9 +313,9 @@ public class TestNNBuilder {
         double[] outputWeightsValues = {0.01,0.02,0.03,0.01};
         UtilityMethods.PopulateDimStruct(outputWeights, outputWeightsValues);
 
-        NeuralNetwork network = builder.addInputBlock(new Dim3Struct.Dims(2,1,1))
+        BasicNetwork network = builder.addInputBlock(new Dim3Struct.Dims(2,1,1))
                 .addFullyConnectedBlock(4,new Sigmoid()).addWeights(weights2)
-                .addOutputLayer(1,new MSE()).addWeights(outputWeights)
+                .addPolicyOutputBlock(1,new MSE()).addWeights(outputWeights)
                 .build();
 
         SGD sgd = new SGD();
@@ -335,13 +338,13 @@ public class TestNNBuilder {
         double[] inputArray4 = {1,1};
         double[] expectedArray4 = {1};
 
-        set.add(inputArray1,expectedArray1);
-        set.add(inputArray2,expectedArray2);
-        set.add(inputArray3,expectedArray3);
-        set.add(inputArray4,expectedArray4);
+        set.add(new PolicyDataSetRow(inputArray1,expectedArray1));
+        set.add(new PolicyDataSetRow(inputArray2,expectedArray2));
+        set.add(new PolicyDataSetRow(inputArray3,expectedArray3));
+        set.add(new PolicyDataSetRow(inputArray4,expectedArray4));
 
         network.learn(set);
 
         assertEquals(0,1);
-    }
+    }*/
 }

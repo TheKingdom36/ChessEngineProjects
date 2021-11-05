@@ -1,6 +1,5 @@
 package NeuralNetwork.Utils;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 
@@ -10,7 +9,7 @@ import java.util.Arrays;
  * input for unsupervised learning rules.
  *
  */
-public class DataSetRow implements Serializable {
+public class PolicyDataSetRow implements IDataSetRow<double[], double[]> {
 
     /**
      * The class fingerprint that is set to indicate serialization compatibility
@@ -35,7 +34,7 @@ public class DataSetRow implements Serializable {
      * @param input input array
      * @param desiredOutput desired output array
      */
-    public DataSetRow(double[] input,double[] desiredOutput) {
+    public PolicyDataSetRow(double[] input,double[] desiredOutput) {
         this.input = input;
         this.expectedOutput = desiredOutput;
     }
@@ -45,28 +44,33 @@ public class DataSetRow implements Serializable {
      *
      * @param input input array
      */
-    public DataSetRow(double... input) {
+    public PolicyDataSetRow(double... input) {
         this.input = input;
     }
 
 
 
+    @Override
     public double[] getInput() {
         return this.input;
     }
 
+    @Override
     public void setInput(double[] input) {
         this.input = input;
     }
 
+    @Override
     public double[] getExpectedOutput() {
         return expectedOutput;
     }
 
+    @Override
     public void setExpectedOutput(double[] expectedOutput) {
         this.expectedOutput = expectedOutput;
     }
 
+    @Override
     public boolean isSupervised() {
         return (expectedOutput != null);
     }
@@ -92,6 +96,7 @@ public class DataSetRow implements Serializable {
         return sb.toString();
     }
 
+    @Override
     public double[] toArray() {
         double[] row = new double[input.length + expectedOutput.length];
         System.arraycopy(input, 0, row, 0, input.length);
@@ -99,6 +104,7 @@ public class DataSetRow implements Serializable {
         return row;
     }
 
+    @Override
     public String toCSV() {
         StringBuilder sb = new StringBuilder();
 
@@ -134,7 +140,7 @@ public class DataSetRow implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DataSetRow other = (DataSetRow) obj;
+        final PolicyDataSetRow other = (PolicyDataSetRow) obj;
         if (!Arrays.equals(this.input, other.input)) {
             return false;
         }

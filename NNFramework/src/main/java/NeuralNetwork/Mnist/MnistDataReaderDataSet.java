@@ -1,15 +1,16 @@
 package NeuralNetwork.Mnist;
 
-import NeuralNetwork.Utils.DataSet;
-import NeuralNetwork.Utils.DataSetRow;
+import NeuralNetwork.Utils.*;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MnistDataReaderDataSet {
-    public DataSetRow[] readData(String dataFilePath,String labelFilePath) throws IOException {
+    public NetworkRow[] readData(String dataFilePath,String labelFilePath) throws IOException {
 
         DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(dataFilePath)));
         int magicNumber = dataInputStream.readInt();
@@ -29,35 +30,40 @@ public class MnistDataReaderDataSet {
         System.out.println("labels magic number is: " + labelMagicNumber);
         System.out.println("number of labels is: " + numberOfLabels);
 
-        DataSet set = new DataSet();
+        NetworkDataSet set = new NetworkDataSet();
 
         set.setSampleInputSize(28*28);
-        set.setSampleExpectedOutputSize(10);
+        set.setNumberOfOutputs(1);
 
 
         assert numberOfItems == numberOfLabels;
 
-       DataSetRow[] samples = new DataSetRow[30000];
-        for(int i = 0; i < numberOfItems/2; i++) {
-            DataSetRow sample = new DataSetRow();
+       NetworkRow[] samples = new NetworkRow[60000];
+
+        double[] inputArray;
+        double[] outputArray;
+        NetworkRow sample;
+        for(int i = 0; i < numberOfItems; i++) {
+            sample = new NetworkRow();
 
 
-            double[] inputArray = new double[28*28];
+            inputArray = new double[28*28];
 
             int output = labelInputStream.readUnsignedByte();
-            double[] outputArray = new double[10];
+            outputArray = new double[10];
             outputArray[output] = 1;
 
             for (int r = 0; r < nRows; r++) {
                 for (int c = 0; c < nCols; c++) {
                     inputArray[nRows*r + c ] = dataInputStream.readUnsignedByte();
-
                     inputArray[nRows*r + c ]/=255;
                 }
             }
 
-            sample.setExpectedOutput(outputArray);
-            sample.setInput(inputArray);
+            sample.addExpectedOutput(outputArray);
+            Dim3Struct struct = new Dim3Struct(28,28,1);
+            struct.populate(inputArray);
+            sample.setInput(struct);
             samples[i]= sample;
         }
 
@@ -65,6 +71,7 @@ public class MnistDataReaderDataSet {
         labelInputStream.close();
 
 
+        System.out.println("Finished Loading data");
         return samples;
     }
 }

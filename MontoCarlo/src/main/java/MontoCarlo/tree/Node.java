@@ -1,15 +1,21 @@
 package MontoCarlo.tree;
 
+import MontoCarlo.GameState;
 import MontoCarlo.NodeState;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 
-public class Node<State extends NodeState> {
+public class Node<State extends GameState> {
     State state;
     Node parent;
+    @Getter @Setter
+    private Boolean isActive;
     List<Node<State>> childArray;
 
 
@@ -29,6 +35,7 @@ public class Node<State extends NodeState> {
     public Node(State state) {
 //TODO
     }
+
     public State getState() {
         return state;
     }
@@ -60,6 +67,8 @@ public class Node<State extends NodeState> {
             return c.getState().getVisitCount();
         }));
     }
+
+
 
     public Node DeepCopy() throws InstantiationException, IllegalAccessException {
         //TODO

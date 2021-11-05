@@ -38,7 +38,7 @@ FCBlock.setWeights(weights);
         UtilityMethods.PopulateDimStruct(expectedOutput,expectedValues);
 
 
-        assertEquals(expectedOutput,FCBlock.getOutputNeurons());
+        assertEquals(expectedOutput,FCBlock.getOutput());
     }
 
     @Test
@@ -67,7 +67,7 @@ FCBlock.setWeights(weights);
         UtilityMethods.PopulateDimStruct(expectedOutput,expectedValues);
 
 
-        assertEquals(expectedOutput,FCBlock.getOutputNeurons());
+        assertEquals(expectedOutput,FCBlock.getOutput());
     }
 
     @Test
@@ -95,7 +95,7 @@ FCBlock.setWeights(weights);
         UtilityMethods.PopulateDimStruct(expectedOutput,expectedValues);
 
 
-        assertEquals(expectedOutput,FCBlock.getOutputNeurons());
+        assertEquals(expectedOutput,FCBlock.getOutput());
     }
 
 
@@ -122,7 +122,7 @@ FCBlock.setWeights(weights);
         double[] expectedValues = {relu.getOutput(0.15)};
         UtilityMethods.PopulateDimStruct(expectedOutput,expectedValues);
 
-        assertEquals(expectedOutput,FCBlock.getOutputNeurons());
+        assertEquals(expectedOutput,FCBlock.getOutput());
     }
 
     @Test
@@ -189,7 +189,7 @@ FCBlock.setWeights(weights);
         UtilityMethods.PopulateDimStruct(nextWeights,weightValues);
 
         FullyConnectedBlock previousBlock = mock(FullyConnectedBlock.class);
-        when(previousBlock.getOutputNeurons()).thenReturn(input);
+        when(previousBlock.getOutput()).thenReturn(input);
 
         FullyConnectedBlock nextBlock = mock(FullyConnectedBlock.class);
         when(nextBlock.getWeights()).thenReturn(nextWeights);
@@ -237,7 +237,7 @@ FCBlock.setWeights(weights);
         FCB.calculate(input);
 
         double[] expectedValues = {3.83,4.58,9.3,3.83};
-        assertArrayEquals(FCB.getOutputNeurons().toArray(),expectedValues);
+        assertArrayEquals(FCB.getOutput().toArray(),expectedValues);
 
 
         Dim3Struct nextNeuronErrors = new Dim3Struct(3,1,1);
@@ -249,7 +249,7 @@ FCBlock.setWeights(weights);
         UtilityMethods.PopulateDimStruct(nextWeights,weightValues);
 
         FullyConnectedBlock previousBlock = mock(FullyConnectedBlock.class);
-        when(previousBlock.getOutputNeurons()).thenReturn(input);
+        when(previousBlock.getOutput()).thenReturn(input);
 
         FullyConnectedBlock nextBlock = mock(FullyConnectedBlock.class);
         when(nextBlock.getWeights()).thenReturn(nextWeights);
@@ -299,7 +299,7 @@ FCBlock.setWeights(weights);
         FCB.calculate(input);
 
         double[] expectedValues = {3.83,4.58,9.3};
-        assertArrayEquals(FCB.getOutputNeurons().toArray(),expectedValues);
+        assertArrayEquals(FCB.getOutput().toArray(),expectedValues);
 
 
         Dim3Struct nextNeuronErrors = new Dim3Struct(3,1,1);
@@ -311,7 +311,7 @@ FCBlock.setWeights(weights);
         UtilityMethods.PopulateDimStruct(nextWeights,weightValues);
 
         FullyConnectedBlock previousBlock = mock(FullyConnectedBlock.class);
-        when(previousBlock.getOutputNeurons()).thenReturn(input);
+        when(previousBlock.getOutput()).thenReturn(input);
 
         FullyConnectedBlock nextBlock = mock(FullyConnectedBlock.class);
         when(nextBlock.getWeights()).thenReturn(nextWeights);
@@ -369,7 +369,7 @@ FCBlock.setWeights(weights);
         UtilityMethods.PopulateDimStruct(nextWeights,weightValues);
 
         FullyConnectedBlock previousBlock = mock(FullyConnectedBlock.class);
-        when(previousBlock.getOutputNeurons()).thenReturn(input);
+        when(previousBlock.getOutput()).thenReturn(input);
 
         FullyConnectedBlock nextBlock = mock(FullyConnectedBlock.class);
         when(nextBlock.getWeights()).thenReturn(nextWeights);

@@ -10,15 +10,8 @@ import java.util.List;
 
 public abstract class NodeState {
     private int visitCount;
-
+    private int winScore;
     @Getter @Setter private Boolean isActive;
-    @Getter @Setter private double winScore;
-
-    @Getter @Setter
-    private double isBestActionProbability;
-
-    @Getter @Setter
-    private double BestActionProbabilities;
 
 
     public NodeState(){

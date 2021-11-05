@@ -49,7 +49,7 @@ public class ChessBoardToNNInputConverter {
 
     public static Plane[] ConvertChessBoardToInput(ChessBoardState chessBoardState) {
 
-        ChessBoard chessBoard = chessBoardState.getBoard().Copy();
+        ChessBoard chessBoard = chessBoardState.getBoard().copy();
 
 
         Plane[] input = new Plane[21];

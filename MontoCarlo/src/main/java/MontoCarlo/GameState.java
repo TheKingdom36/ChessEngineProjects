@@ -10,45 +10,74 @@ import lombok.Setter;
 
 import java.util.List;
 
-public abstract class GameState  extends NodeState{
+public abstract class GameState<M extends Move>{
+    /**
+     * The move which created the current game state
+     */
+    @Getter @Setter
+    private M move;
 
-    @Getter
-    @Setter
-    private Move move;
+    @Getter @Setter
+    private double isBestActionProbability;
 
-    public abstract Plane[] convertToNeuralNetInput();
+    @Getter @Setter
+    private double BestActionProbabilities;
 
+    @Getter @Setter private double winScore;
 
-    public abstract <MoveType extends Move> List<MoveType> getAllAvailableMoves();
+    @Getter @Setter
+    private int visitCount;
 
-    public abstract GameState createNewState(Move move);
+    public GameState(){
+        visitCount=0;
+        winScore=0;
+        this.visitCount =0;
+    }
+
+    /**
+     *
+     * @return Returns all possible moves from the current game state
+     */
+    public abstract List<M> getAllAvailableMoves();
+
+    public abstract GameState createNewState(M move);
 
     public abstract GameState createNewState();
 
+    /**
+     *
+     * @return
+     */
     public abstract int getCurrentPlayerID();
-
-    public abstract Move getMove();
 
     public abstract int getMoveID();
 
-    public abstract void nextPlayer();
-
     public abstract Board getBoard();
 
-    protected abstract  <State extends NodeState> State[] getAllPossibleStates(List<Move> movesList);
+    public abstract void nextPlayer();
 
-    @Override
-    public <State extends NodeState> State[] getAllPossibleStates() {
+    protected abstract  GameState[] getAllPossibleStates(List<M> movesList);
 
-        List<Move> availableMoves = getAllAvailableMoves();
+    void incrementVisit() {
+        this.visitCount++;
+    }
 
-        State[] nodeStates = getAllPossibleStates(availableMoves);
+    public void updateWinScore(double value){
+        winScore += value;
+    }
 
-        for(NodeState nodeState : nodeStates){
-            nodeState.setIsActive(false);
-        }
 
-        return nodeStates;
+    /**
+     * Returns an array of all possible gameStates from the current gameState
+     * @return array of GameStates
+     */
+    public GameState[] getAllPossibleStates() {
+
+        List<M> availableMoves = getAllAvailableMoves();
+
+        GameState[] gameStates = getAllPossibleStates(availableMoves);
+
+        return gameStates;
     }
 
 

@@ -7,15 +7,12 @@ public interface Block<Output> {
      * Used to verify that the network dimensions are correctly set
      *
      */
-    void VerifyBlock();
+    void verifyBlock();
 
     Output calculate(Dim3Struct input);
 
     void setUp();
 
-    Output getOutputNeurons();
-
-
-
+    Output getOutput();
 
 }

@@ -17,8 +17,8 @@ import java.util.List;
 
 public class ChessBoard implements Board<ChessMove> {
     private BoardSquare[][] boardSquares;
-    private Position WhiteKing;
-    private Position BlackKing;
+    private Position whiteKing;
+    private Position blackKing;
     private MoveLog moveLog;
 
     public void setBoardSquares(BoardSquare[][] boardSquares) {
@@ -40,12 +40,12 @@ public class ChessBoard implements Board<ChessMove> {
     }
 
     public ChessBoard(MoveLog moveLog){
-            Setup();
+            setup();
             this.moveLog = moveLog.Copy();
     }
 
     public ChessBoard(){
-            Setup();
+            setup();
             this.moveLog = new MoveLog<ChessMove>();
     }
 
@@ -60,9 +60,9 @@ public class ChessBoard implements Board<ChessMove> {
 
                     if(boardSquares[i][j].getChessPiece().getType() == Type.King){
                         if(boardSquares[i][j].getChessPiece().getColor() == Color.White){
-                            WhiteKing = ChessPosStore.getPostion(i,j);
+                            whiteKing = ChessPosStore.getPostion(i,j);
                         }else {
-                            BlackKing = ChessPosStore.getPostion(i,j);
+                            blackKing = ChessPosStore.getPostion(i,j);
                         }
                     }
 
@@ -106,21 +106,21 @@ public class ChessBoard implements Board<ChessMove> {
     }
 
     @Override
-    public List<ChessMove> GetAllAvailableMoves(Color color)  {
+    public List<ChessMove> getAllAvailableMoves(Color color)  {
 
         return CheckForMovesToProtectKing(color);
     }
 
     private boolean isKingSafe(Color color) {
         if(color == Color.White){
-            return SquareSaftyCheck.isSquareSafe(WhiteKing,color,boardSquares);
+            return SquareSaftyCheck.isSquareSafe(whiteKing ,color,boardSquares);
         }else{
-            return SquareSaftyCheck.isSquareSafe(BlackKing,color,boardSquares);
+            return SquareSaftyCheck.isSquareSafe(blackKing ,color,boardSquares);
         }
     }
 
     private List<ChessMove> CheckForMovesToProtectKing(Color color)  {
-        List<ChessMove> chessMoves = CheckMovesOfAllPieces(color);
+        List<ChessMove> chessMoves = checkMovesOfAllPieces(color);
         chessMoves.addAll(CastleCheck.Check(this,moveLog,color));
         List<ChessMove> safeChessMoves = new ArrayList<>();
 
@@ -128,12 +128,12 @@ public class ChessBoard implements Board<ChessMove> {
 
         for(ChessMove m: chessMoves){
 
-            this.UpdateBoard(m);
+            this.updateBoard(m);
 
             if(this.isKingSafe(color)==true){
                 safeChessMoves.add(m);
             }
-            this.UndoMove(m);
+            this.undoMove(m);
 
         }
 
@@ -141,7 +141,7 @@ public class ChessBoard implements Board<ChessMove> {
     }
 
     @Override
-    public void UndoMove(ChessMove chessMove) {
+    public void undoMove(ChessMove chessMove) {
         moveLog.getPastMoves().remove(moveLog.getPastMoves().size()-1);
 
         if(chessMove instanceof NormalPromotionChessMove){
@@ -167,16 +167,16 @@ public class ChessBoard implements Board<ChessMove> {
 
         if(chessMove.getChessPiece().getType() == Type.King){
             if(chessMove.getChessPiece().getColor() == Color.White){
-                WhiteKing = chessMove.getFrom();
+                whiteKing = chessMove.getFrom();
             }else{
-                BlackKing = chessMove.getFrom();
+                blackKing = chessMove.getFrom();
             }
         }
 
 
     }
 
-    private List<ChessMove> CheckMovesOfAllPieces(Color color)  {
+    private List<ChessMove> checkMovesOfAllPieces(Color color)  {
         List<ChessMove> chessMoves = new ArrayList<>();
 
 
@@ -196,7 +196,7 @@ public class ChessBoard implements Board<ChessMove> {
     }
 
     @Override
-    public void UpdateBoard(ChessMove chessMove){
+    public void updateBoard(ChessMove chessMove){
         moveLog.AddMove(chessMove);
 
         if(chessMove instanceof NormalPromotionChessMove){
@@ -217,15 +217,15 @@ public class ChessBoard implements Board<ChessMove> {
 
         if(chessMove.getChessPiece().getType() == Type.King){
             if(chessMove.getChessPiece().getColor() == Color.White){
-                WhiteKing = chessMove.getTo();
+                whiteKing = chessMove.getTo();
             }else{
-                BlackKing = chessMove.getTo();
+                blackKing = chessMove.getTo();
             }
         }
     }
 
     @Override
-    public void PrintBoard(){
+    public void printBoard(){
         System.out.println();
         for(int i=boardSquares.length-1;i>=0;i--){
             System.out.println();
@@ -241,7 +241,7 @@ public class ChessBoard implements Board<ChessMove> {
     }
 
     @Override
-    public void Reset() {
+    public void reset() {
         for(int i=0;i<boardSquares.length;i++){
             for(int j=0;j<boardSquares[i].length;j++){
                 boardSquares[i][j].clear();
@@ -275,7 +275,7 @@ public class ChessBoard implements Board<ChessMove> {
     }
 
     @Override
-    public void Setup() {
+    public void setup() {
         boardSquares = new BoardSquare[8][8];
 
         for(int i=0;i<boardSquares.length;i++){
@@ -296,7 +296,7 @@ public class ChessBoard implements Board<ChessMove> {
         boardSquares[0][6].setChessPiece(PieceStore.getPiece(Type.Knight, Color.White));
         boardSquares[0][7].setChessPiece(PieceStore.getPiece(Type.Rook, Color.White));
 
-        WhiteKing = ChessPosStore.getPostion(0,4);
+        whiteKing = ChessPosStore.getPostion(0,4);
 
         for(int i=0;i<8;i++){
             boardSquares[6][i].setChessPiece(PieceStore.getPiece(Type.Pawn, Color.Black));
@@ -310,12 +310,12 @@ public class ChessBoard implements Board<ChessMove> {
         boardSquares[7][6].setChessPiece(PieceStore.getPiece(Type.Knight, Color.Black));
         boardSquares[7][7].setChessPiece(PieceStore.getPiece(Type.Rook, Color.Black));
 
-        BlackKing = ChessPosStore.getPostion(7,4);
+        blackKing = ChessPosStore.getPostion(7,4);
 
     }
 
     @Override
-    public ChessBoard Copy()  {
+    public ChessBoard copy()  {
         BoardSquare[][] newBoardSquares = new BoardSquare[8][8];
 
 

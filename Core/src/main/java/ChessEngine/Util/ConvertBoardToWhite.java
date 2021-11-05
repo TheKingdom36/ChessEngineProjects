@@ -9,7 +9,7 @@ import GameBoard.ChessBoard.Util.PieceStore;
 public class ConvertBoardToWhite {
     public static ChessBoard Convert(ChessBoard chessBoard){
         //Always want the input in perspective of white player. after the neural network completes the output is then planeped to blacks perspective
-                ChessBoard flippedChessBoard = chessBoard.Copy();
+                ChessBoard flippedChessBoard = chessBoard.copy();
 
                 InvertPieceColors(flippedChessBoard);
                 RotateBoard(flippedChessBoard);

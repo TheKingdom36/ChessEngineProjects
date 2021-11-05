@@ -3,6 +3,7 @@ package NeuralNetwork.Learning;
 import Events.LearningEvent;
 import NeuralNetwork.Block.StopCondition;
 import NeuralNetwork.Utils.DataSet;
+import NeuralNetwork.Utils.NetworkDataSet;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -159,7 +160,7 @@ abstract public class IterativeLearning extends LearningRule implements
     }
 
     @Override
-    public final void learn(DataSet trainingSet) {
+    public final void learn(NetworkDataSet trainingSet) {
         setTrainingSet(trainingSet); // set this field here su subclasses can access it
         onStart();
 
@@ -219,7 +220,7 @@ abstract public class IterativeLearning extends LearningRule implements
      * @param maxIterations maximum numberof iterations to learn
      *
      */
-    public void learn(DataSet trainingSet, int maxIterations) {
+    public void learn(NetworkDataSet trainingSet, int maxIterations) {
         this.setMaxIterations(maxIterations);
         this.learn(trainingSet);
     }
@@ -231,7 +232,7 @@ abstract public class IterativeLearning extends LearningRule implements
      *
      * @param trainingSet training set to learn
      */
-    public void doOneLearningIteration(DataSet trainingSet) {
+    public void doOneLearningIteration(NetworkDataSet trainingSet) {
         beforeEpoch();
         doLearningEpoch(trainingSet);
         afterEpoch();
@@ -245,5 +246,5 @@ abstract public class IterativeLearning extends LearningRule implements
      *
      * @param trainingSet training set
      */
-    abstract public void doLearningEpoch(DataSet trainingSet);
+    abstract public void doLearningEpoch(NetworkDataSet trainingSet);
 }

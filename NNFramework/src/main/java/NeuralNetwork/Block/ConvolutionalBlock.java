@@ -41,7 +41,12 @@ public final class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>
            throw new RuntimeException("Weights have not been intialised") ;
         }
 
-        VerifyBlock();
+        verifyBlock();
+    }
+
+    @Override
+    public Dim3Struct getOutput() {
+        return outputNeurons;
     }
 
 
@@ -72,6 +77,10 @@ public final class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>
         int newLength = ((PaddedInput.getLength() - kernelLength + 2*padding)/stride) + 1;
         int newWidth =  ((PaddedInput.getWidth() - kernelWidth + 2*padding)/stride) + 1;
 
+
+        if(newLength<0 || newWidth<0){
+           System.out.print("Here");
+        }
 
 
         Dim3Struct output = new Dim3Struct(new Dim3Struct.Dims(newLength,newWidth,numOfKernels));
@@ -168,22 +177,21 @@ public final class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>
     protected Dim3Struct calculateNeuronErrors(Dim3Struct nextNeuronErrors,Object nextWeights) {
 
         if(nextWeights instanceof Dim3Struct){
-            //neurons errors should be errors od con. As we are connected to a fc layer
-         //   if(neuronErrors==null) {
+            //neurons errors should be errors od con. As we are connected to a fc
                 this.neuronErrors = new Dim3Struct(outputNeurons.getDims());
-         //   }
+
             for(int neuronCount=0;neuronCount<neuronErrors.getWidth();neuronCount++) {
                 for (int inputDeltaCount = 0; inputDeltaCount < nextNeuronErrors.getWidth(); inputDeltaCount++) {
                     neuronErrors.getValues()[neuronCount][0][0] += nextNeuronErrors.getValues()[inputDeltaCount][0][0]*((Dim3Struct)nextWeights).getValues()[inputDeltaCount][neuronCount][0];
                 }
             }
-
         }else if(nextWeights instanceof ArrayList){
             //do normal CB
             this.neuronErrors = new Dim3Struct(neurons.getDims());
 
             //do it per kernel
-            for(int ker=0;ker<((ArrayList<Dim3Struct>) nextWeights).size();ker++){
+            int kernelSize = ((ArrayList<Dim3Struct>) nextWeights).size();
+            for(int ker=0;ker<kernelSize;ker++){
 
                 //for each neuron value
                 for(int Wne =0; Wne < neuronErrors.getWidth(); Wne++){

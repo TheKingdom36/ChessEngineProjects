@@ -4,7 +4,6 @@ package ChessEngine;
 import GameBoard.ChessBoard.Enums.Type;
 import GameBoard.ChessBoard.Moves.NormalPromotionChessMove;
 import GameBoard.ChessBoard.Moves.TakePromotionChessMove;
-import GameBoard.Common.Interfaces.Move;
 import GameBoard.ChessBoard.Enums.Color;
 import GameBoard.ChessBoard.Models.ChessBoard;
 import GameBoard.ChessBoard.MoveCheckers.CastleCheck;
@@ -12,12 +11,12 @@ import GameBoard.ChessBoard.Moves.CastleChessMove;
 import GameBoard.ChessBoard.Moves.ChessMove;
 import GameBoard.ChessBoard.Util.ChessPosStore;
 //TODO Just import change to white class
-import ChessEngine.Util.*;
-import Common.Plane;
 import MontoCarlo.GameState;
 import MontoCarlo.NodeState;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,14 +24,14 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ChessBoardState extends GameState {
+public class ChessBoardState extends GameState<ChessMove> {
 
-    private ChessBoard Board;
+    private ChessBoard board;
     private Color playerColor;
-    private boolean CastleQueenSide;
-    private boolean CastleKingSide;
-    private boolean OppCastleQueenSide;
-    private boolean OppCastleKingSide;
+    private boolean castleQueenSide;
+    private boolean castleKingSide;
+    private boolean oppCastleQueenSide;
+    private boolean oppCastleKingSide;
     private int noProgressCount;
     private int totalMoveCount;
 
@@ -51,18 +50,18 @@ public class ChessBoardState extends GameState {
 
 
     public ChessBoardState(ChessBoardState chessBoardState){
-        this.Board = chessBoardState.getBoard().Copy();
+        this.board = chessBoardState.getBoard().copy();
         this.playerColor = chessBoardState.getPlayerColor();
-        this.CastleQueenSide = chessBoardState.isCastleQueenSide();
-        this.CastleKingSide = chessBoardState.isCastleKingSide();
+        this.castleQueenSide = chessBoardState.isCastleQueenSide();
+        this.castleKingSide = chessBoardState.isCastleKingSide();
         this.noProgressCount = chessBoardState.getNoProgressCount();
         this.totalMoveCount = chessBoardState.getTotalMoveCount();
-        this.OppCastleQueenSide = chessBoardState.isOppCastleQueenSide();
-        this.CastleKingSide = chessBoardState.isOppCastleKingSide();
+        this.oppCastleQueenSide = chessBoardState.isOppCastleQueenSide();
+        this.castleKingSide = chessBoardState.isOppCastleKingSide();
     }
 
     public ChessBoardState(ChessBoard chessBoard, Color playerColor) {
-        this.Board = chessBoard.Copy();
+        this.board = chessBoard.copy();
         this.playerColor = playerColor;
 
         Color opponent;
@@ -80,15 +79,15 @@ public class ChessBoardState extends GameState {
         for(ChessMove castlem: castleChessMoves){
             if (playerColor == Color.White) {
                 if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(0, 0)) == 1) {
-                    OppCastleQueenSide = true;
+                    oppCastleQueenSide = true;
                 } else if (((CastleChessMove) castlem).getFrom().compareTo(ChessPosStore.getPostion(0, 7)) == 1) {
-                    OppCastleKingSide = true;
+                    oppCastleKingSide = true;
                 }
             } else {
                 if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(7, 0)) == 1) {
-                    OppCastleQueenSide = true;
+                    oppCastleQueenSide = true;
                 } else if (((CastleChessMove) castlem).getFrom().compareTo(ChessPosStore.getPostion(7, 7)) == 1) {
-                    OppCastleKingSide = true;
+                    oppCastleKingSide = true;
                 }
             }
         }
@@ -101,15 +100,15 @@ public class ChessBoardState extends GameState {
         for (ChessMove castlem : castleChessMoves) {
             if (opponent == Color.White) {
                 if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(0, 0)) == 1) {
-                    OppCastleQueenSide = true;
+                    oppCastleQueenSide = true;
                 } else if (((CastleChessMove) castlem).getFrom().compareTo(ChessPosStore.getPostion(0, 7)) == 1) {
-                    OppCastleKingSide = true;
+                    oppCastleKingSide = true;
                 }
             } else {
                 if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(7, 0)) == 1) {
-                    OppCastleQueenSide = true;
+                    oppCastleQueenSide = true;
                 } else if (((CastleChessMove) castlem).getFrom().compareTo(ChessPosStore.getPostion(7, 7)) == 1) {
-                    OppCastleKingSide = true;
+                    oppCastleKingSide = true;
                 }
             }
         }
@@ -120,11 +119,11 @@ public class ChessBoardState extends GameState {
 
 
         if(pastChessMoves.size()>3){
-            ChessBoard tempChessBoard = this.getBoard().Copy();
-            tempChessBoard.UndoMove(pastChessMoves.get(pastChessMoves.size()-1));
-            tempChessBoard.UndoMove(pastChessMoves.get(pastChessMoves.size()-2));
-            tempChessBoard.UndoMove(pastChessMoves.get(pastChessMoves.size()-3));
-            tempChessBoard.UndoMove(pastChessMoves.get(pastChessMoves.size()-4));
+            ChessBoard tempChessBoard = this.getBoard().copy();
+            tempChessBoard.undoMove(pastChessMoves.get(pastChessMoves.size()-1));
+            tempChessBoard.undoMove(pastChessMoves.get(pastChessMoves.size()-2));
+            tempChessBoard.undoMove(pastChessMoves.get(pastChessMoves.size()-3));
+            tempChessBoard.undoMove(pastChessMoves.get(pastChessMoves.size()-4));
             if(tempChessBoard.compareTo(this.getBoard())==1){
                 this.setNoProgressCount(1);
             }else {
@@ -141,8 +140,8 @@ public class ChessBoardState extends GameState {
     public ChessBoardState(ChessBoardState chessBoardState, ChessMove m){
         Color opponent;
         //Assign new board
-        this.setBoard(chessBoardState.getBoard().Copy());
-        this.getBoard().UpdateBoard(m);
+        this.setBoard(chessBoardState.getBoard().copy());
+        this.getBoard().updateBoard(m);
 
         //Assign next player to move
         if(chessBoardState.getPlayerColor() == Color.White){
@@ -175,19 +174,19 @@ public class ChessBoardState extends GameState {
 
 
         //Check if Opponent castling is available
-        castleChessMoves = CastleCheck.Check(getBoard(), Board.getMoveLog(), opponent);
+        castleChessMoves = CastleCheck.Check(getBoard(), board.getMoveLog(), opponent);
         for (ChessMove castlem : castleChessMoves) {
             if (opponent == Color.White) {
                 if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(0, 0)) == 1) {
-                    OppCastleQueenSide = true;
+                    oppCastleQueenSide = true;
                 } else if (((CastleChessMove) castlem).getFrom().compareTo(ChessPosStore.getPostion(0, 7)) == 1) {
-                    OppCastleKingSide = true;
+                    oppCastleKingSide = true;
                 }
             } else {
                 if (((CastleChessMove) castlem).getRookFromPos().compareTo(ChessPosStore.getPostion(7, 0)) == 1) {
-                    OppCastleQueenSide = true;
+                    oppCastleQueenSide = true;
                 } else if (((CastleChessMove) castlem).getFrom().compareTo(ChessPosStore.getPostion(7, 7)) == 1) {
-                    OppCastleKingSide = true;
+                    oppCastleKingSide = true;
                 }
             }
         }
@@ -200,11 +199,11 @@ public class ChessBoardState extends GameState {
 
         //if the board from 4 moves ago was the same as the current board there has been no progress
         if(pastChessMoves.size()>3){
-            ChessBoard tempChessBoard = this.getBoard().Copy();
-            tempChessBoard.UndoMove(pastChessMoves.get(pastChessMoves.size()-1));
-            tempChessBoard.UndoMove(pastChessMoves.get(pastChessMoves.size()-2));
-            tempChessBoard.UndoMove(pastChessMoves.get(pastChessMoves.size()-3));
-            tempChessBoard.UndoMove(pastChessMoves.get(pastChessMoves.size()-4));
+            ChessBoard tempChessBoard = this.getBoard().copy();
+            tempChessBoard.undoMove(pastChessMoves.get(pastChessMoves.size()-1));
+            tempChessBoard.undoMove(pastChessMoves.get(pastChessMoves.size()-2));
+            tempChessBoard.undoMove(pastChessMoves.get(pastChessMoves.size()-3));
+            tempChessBoard.undoMove(pastChessMoves.get(pastChessMoves.size()-4));
             if(tempChessBoard.compareTo(this.getBoard())==1){
                 this.setNoProgressCount(chessBoardState.getNoProgressCount()+1);
             }else {
@@ -215,28 +214,19 @@ public class ChessBoardState extends GameState {
         }
     }
 
-
-    @Override
-    public Plane[] convertToNeuralNetInput() {
-
-        return ChessBoardToNNInputConverter.ConvertChessBoardToInput(this);
-
-    }
-
     @Override
     public List<ChessMove> getAllAvailableMoves() {
-        return Board.GetAllAvailableMoves(playerColor);
+        return board.getAllAvailableMoves(playerColor);
     }
 
 
 
     @Override
-    public GameState createNewState(Move move) {
+    public ChessBoardState createNewState(ChessMove move) {
         ChessBoardState newChessBoardState = new ChessBoardState(this);
-        newChessBoardState.setStateMove((ChessMove)move);
-        newChessBoardState.Board.UpdateBoard((ChessMove)move);
+        newChessBoardState.setStateMove(move);
+        newChessBoardState.getBoard().updateBoard(move);
         return newChessBoardState;
-
     }
 
     @Override
@@ -320,9 +310,15 @@ public class ChessBoardState extends GameState {
     }
 
     @Override
-    protected <State extends NodeState> State[] getAllPossibleStates(List<Move> movesList) {
-        //TODO
-        return null;
+    protected ChessBoardState[] getAllPossibleStates(List<ChessMove> movesList) {
+        //TODO create a list of all possible states from the current state given the list of moves
+        ArrayList<ChessBoardState> states = new ArrayList<>();
+        for(ChessMove move : movesList){
+            states.add( new ChessBoardState(this,move));
+        }
+
+
+        return (ChessBoardState[]) states.toArray();
     }
 
 

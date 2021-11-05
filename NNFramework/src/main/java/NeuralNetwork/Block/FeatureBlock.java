@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Dim3Struct,WeightsStruct> {
+public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<WeightsStruct,Dim3Struct> {
 
 
     protected ActivationFunction activationFunction;
@@ -103,11 +103,7 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Dim3Str
             neuronErrors = postNeuronOperations.get(i).calculateDeltas(neuronErrors);
         }
 
-
-
-
-
-        weightErrors = calculateWeightErrors(neuronErrors,(Dim3Struct) previousBlock.getOutputNeurons());
+        weightErrors = calculateWeightErrors(neuronErrors,(Dim3Struct) previousBlock.getOutput());
 
     }
 
@@ -133,12 +129,15 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Dim3Str
 
 
 
-        weightErrors = calculateWeightErrors(neuronErrors,(Dim3Struct) inputBlock.getOutputNeurons());
+        weightErrors = calculateWeightErrors(neuronErrors,(Dim3Struct) inputBlock.getOutput());
 
 
     }
 
-
+    @Override
+    public Dim3Struct getOutput(){
+        return outputNeurons;
+    }
 
     @Override
     public void resetErrors() {
@@ -153,7 +152,7 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Dim3Str
      * Used to verify that the network dimensions are correctly set
      *
      */
-    public void VerifyBlock(){
+    public void verifyBlock(){
 
         calculate(new Dim3Struct(inputNeuronsDims));
     }

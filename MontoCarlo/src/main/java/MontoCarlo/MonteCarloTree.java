@@ -3,26 +3,21 @@ package MontoCarlo;
 
 
 import GameBoard.Common.Interfaces.Move;
-import MontoCarlo.interfaces.PolicyOutput;
-import MontoCarlo.interfaces.PolicyPredictor;
 import MontoCarlo.tree.Node;
 import MontoCarlo.tree.Tree;
 
 
 
-public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
+public class MonteCarloTree {
 
     /**
-     * Network used to evaluate board states
+     * predictor used to evaluate game states
      */
     PolicyPredictor predictor;
 
     public MonteCarloTree(PolicyPredictor policyPredictor) {
-
         predictor = policyPredictor;
-
     }
-
 
     /**
      * Returns the best found move from a given boardState
@@ -37,7 +32,7 @@ public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
 
         Node<GameState> rootNode = new Node<GameState>();
         ((Node) rootNode).setState(gameState);
-        rootNode.getState().setIsActive(true);
+        rootNode.setIsActive(true);
 
         Tree tree = new Tree(rootNode);
 
@@ -47,19 +42,16 @@ public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
         Node<GameState> winnerNode = rootNode.getChildWithMaxScore();
 
         tree.setRoot(winnerNode);
-
-
             return winnerNode.getState().getMove();
-
         }
 
     /**
-     * Returns a TrainingOutput with the best determined move fro mthe current BoardState
+     * Returns a TrainingOutput with the best determined move from the current BoardState
      * @param gameState board state to be evaluated
      * @param searchTime length of time the monte carlo search MonteCarlo.tree should search
      * @return MonteCarloTrainingOutput which holds move object and generated policy by monte carlo search MonteCarlo.tree
      */
-    public MonteCarloTrainingOutput findNextMoveTraining(GameState gameState, long searchTime) throws InstantiationException, IllegalAccessException {
+    public MCTrainingOutput findNextMoveTraining(GameState gameState,long searchTime) throws InstantiationException, IllegalAccessException {
 
         long start = System.currentTimeMillis();
         long end = start + searchTime;
@@ -69,7 +61,7 @@ public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
 
         Node<GameState> rootNode = new Node<GameState>();
         ((Node) rootNode).setState(gameState);
-        rootNode.getState().setIsActive(true);
+        rootNode.setIsActive(true);
 
         Tree tree = new Tree(rootNode);
 
@@ -83,17 +75,19 @@ public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
 
         tree.setRoot(winnerNode);
 
-        MonteCarloTrainingOutput output;
+        MCTrainingOutput output;
 
-        output = new MonteCarloTrainingOutput(new TrainingSample(),winnerNode.getState().getMove());
+        output = new MCTrainingOutput();
+
+        output.setNextMove(winnerNode.getState().getMove());
 
 
         //final calculation of uct values to be returned as the generated policy
-        double[] genPolicy = new double[predictor.getNumOfOutputNodes()];
+        double[] genPolicy = new double[predictor.getNumOfOutputStates()];
         double genPolicyTotal=0;
 
         for(Node<GameState> child: rootNode.getChildArray()){
-            genPolicy[child.getState().getMoveID()] = UCT.uctValue(child.getState().getVisitCount(),child.getState().getWinScore(),child.getParent().getState().getVisitCount(),child.getState().getBestActionProbabilities(),child.getState().getIsActive());
+            genPolicy[child.getState().getMoveID()] = UCT.uctValue(child.getState().getVisitCount(),child.getState().getWinScore(),child.getParent().getState().getVisitCount(),child.getState().getBestActionProbabilities(),child.getIsActive());
             genPolicyTotal += genPolicy[child.getState().getMoveID()];
         }
 
@@ -101,9 +95,9 @@ public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
             genPolicy[child.getState().getMoveID()] =genPolicy[child.getState().getMoveID()]/genPolicyTotal;
 
         }
-        output.getSample().setPolicy(genPolicy);
-        output.getSample().setBoard(gameState.getBoard());
-        output.getSample().setPlayerID(gameState.getCurrentPlayerID());
+        output.setPolicy(genPolicy);
+        output.setBoard(gameState.getBoard());
+        output.setPlayerID(gameState.getCurrentPlayerID());
 
        return output;
 
@@ -115,8 +109,6 @@ public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
 
 
         while (System.currentTimeMillis() < endTime) {
-
-
             // Phase 1 - Selection
 
             Node promisingNode = selectPromisingNode(rootNode);
@@ -129,11 +121,8 @@ public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
             policyOutput = predictor.evaluate(promisingNode.getState());
             AssignProbabilities(promisingNode, policyOutput.getProbabilities());
 
-
             // Phase 4 - Update
             backPropagation(promisingNode, playerID, policyOutput);
-
-
         }
     }
 
@@ -156,17 +145,17 @@ public class MonteCarloTree implements MontoCarlo.interfaces.MonteCarloTree {
 
     private void expandNode(Node node) {
 
-           NodeState[] possibleNodeStates = node.getState().getAllPossibleStates();
+           GameState[] possibleNodeStates = node.getState().getAllPossibleStates();
 
            Node newNode;
 
-           for(NodeState nodeState : possibleNodeStates){
+           for(GameState gameState : possibleNodeStates){
 
-               if(nodeState.getIsActive()) {
-                   newNode = new Node(nodeState);
+
+                   newNode = new Node(gameState);
                    newNode.setParent(node);
                    node.getChildArray().add(newNode);
-               }
+
            }
 
     }

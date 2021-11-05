@@ -16,7 +16,7 @@ public InputBlock(Dim3Struct.Dims inputSize){
 
 
     @Override
-    public void VerifyBlock() {
+    public void verifyBlock() {
 
     }
 
@@ -32,7 +32,7 @@ public InputBlock(Dim3Struct.Dims inputSize){
     }
 
     @Override
-    public Dim3Struct getOutputNeurons() {
+    public Dim3Struct getOutput() {
         return outputNeurons;
     }
 }
