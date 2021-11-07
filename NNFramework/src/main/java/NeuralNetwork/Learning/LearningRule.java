@@ -3,10 +3,8 @@ package NeuralNetwork.Learning;
 import Events.LearningEvent;
 import Events.LearningEventListener;
 import NeuralNetwork.Block.INeuralNetwork;
-import NeuralNetwork.Block.PolicyNeuralNetwork;
 import NeuralNetwork.Utils.DataSet;
 import NeuralNetwork.Utils.NetworkDataSet;
-import NeuralNetwork.Utils.NetworkRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,7 @@ abstract public class LearningRule implements Serializable {
     /**
      * Neural network to train
      */
-    protected INeuralNetwork<?,List<double[]>> NeuralNetwork;
+    protected INeuralNetwork<?> NeuralNetwork;
 
     /**
      * Training data set

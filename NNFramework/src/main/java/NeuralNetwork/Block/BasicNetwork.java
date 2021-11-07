@@ -1,24 +1,21 @@
 package NeuralNetwork.Block;
 
-import NeuralNetwork.Block.Output.BasicOutputBlock;
 import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Learning.LearningRule;
-import NeuralNetwork.Utils.DataSet;
 import NeuralNetwork.Utils.Dim3Struct;
 import NeuralNetwork.Utils.NetworkDataSet;
-import NeuralNetwork.Utils.ValuePolicyPair;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BasicNetwork<LRule extends LearningRule,Output> implements INeuralNetwork<LRule,Output> {
+public abstract class BasicNetwork<LRule extends LearningRule> implements INeuralNetwork<LRule> {
     @Getter
     @Setter
     InputBlock inputBlock;
     @Getter
-    OutputBlock<Output> outputBlock;
+    OutputBlock outputBlock;
     @Getter
     LRule learningRule;
 
@@ -27,7 +24,7 @@ public abstract class BasicNetwork<LRule extends LearningRule,Output> implements
 
 
 
-    public double loss(Output expected){
+    public double loss(List<double[]> expected){
 
         return outputBlock.calculateLossFunc(expected);
     }
@@ -100,7 +97,7 @@ public abstract class BasicNetwork<LRule extends LearningRule,Output> implements
     }
 
     @Override
-    public Output evaluate(Dim3Struct input) {
+    public List<double[]> evaluate(Dim3Struct input) {
 
 
         inputBlock.setOutputNeurons(input);
@@ -113,11 +110,11 @@ public abstract class BasicNetwork<LRule extends LearningRule,Output> implements
 
         outputBlock.calculate(blocks.get(blocks.size()-1).getOutput());
 
-        return outputBlock.getOutput();
+        return (List<double[]>) outputBlock.getOutput();
     }
 
     @Override
-    public Output evaluate(double[] inputs) {
+    public List<double[]> evaluate(double[] inputs) {
         Dim3Struct dim3Struct = new Dim3Struct(inputBlock.getOutput().getDims());
         dim3Struct.populate(inputs);
         return evaluate(dim3Struct);
@@ -129,7 +126,7 @@ public abstract class BasicNetwork<LRule extends LearningRule,Output> implements
     }
 
     @Override
-    public void setOutputBlock(OutputBlock<Output> outputBlock) {
+    public void setOutputBlock(OutputBlock outputBlock) {
         this.outputBlock = outputBlock;
     }
 

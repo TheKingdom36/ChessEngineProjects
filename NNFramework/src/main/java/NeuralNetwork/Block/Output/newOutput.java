@@ -1,9 +1,11 @@
 package NeuralNetwork.Block.Output;
 
-import NeuralNetwork.Block.*;
+import NeuralNetwork.Block.FeatureBlock;
+import NeuralNetwork.Block.WeightBlock;
+import NeuralNetwork.Block.WeightUpdateRule;
+import NeuralNetwork.Exceptions.DimensionMismatch;
 import NeuralNetwork.LossFunctions.LossFunction;
 import NeuralNetwork.Operations.BlockOperation;
-import NeuralNetwork.Exceptions.DimensionMismatch;
 import NeuralNetwork.Operations.Operation;
 import NeuralNetwork.Utils.Dim3Struct;
 import lombok.Getter;
@@ -12,29 +14,16 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendable<FeatureBlock> {
-
+public class newOutput {
     private double[] expectedArray;
-    private int numOfBlockNeurons;
-    @Getter
-    private Dim3Struct outputNeurons;
-    ArrayList<Operation> operations;
-    private LossFunction lossFunction;
-    @Getter @Setter
-    Dim3Struct weights;
-    protected List<BlockOperation> postNeuronOperations;
-    @Getter
-    private Dim3Struct neurons;
-    @Getter
-    private Dim3Struct weightErrors;
-    @Getter
-    private Dim3Struct neuronErrors;
+
+    LossFunction fiucntion;
 
     List<FeatureBlock> blocks;
 
     Dim3Struct.Dims inputNeuronsDims;
 
-    public BasicOutputBlock(int numBlockNeurons, int numInputNeurons, LossFunction lossFunction){
+    public BasicOutputBlock(int numInputNeurons, LossFunction lossFunction){
         inputNeuronsDims = new Dim3Struct.Dims(numInputNeurons,1,1) ;
         this.numOfBlockNeurons = numBlockNeurons;
         this.lossFunction = lossFunction;
@@ -62,7 +51,7 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
             neurons = new Dim3Struct(numOfBlockNeurons,1,1);
         }
         if(weights == null){
-                weights = new Dim3Struct(neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getDepth() ,1);
+            weights = new Dim3Struct(neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getDepth() ,1);
         }
 
         verifyBlock();
@@ -198,8 +187,8 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
 
         for(int weightErrorWidth=0;weightErrorWidth<weightErrors.getWidth();weightErrorWidth++) {
             for(int weightErrorLen=0;weightErrorLen<weightErrors.getLength();weightErrorLen++) {
-            //    System.out.println(weightErrorWidth +" "+weightErrorLen + " " + Deltas.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0]);
-         //       weightErrors.getValues()[weightErrorWidth][weightErrorLen][0] = neuronErrors.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0];
+                //    System.out.println(weightErrorWidth +" "+weightErrorLen + " " + Deltas.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0]);
+                //       weightErrors.getValues()[weightErrorWidth][weightErrorLen][0] = neuronErrors.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0];
 
                 weightErrors.setValue(neuronErrors.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0],weightErrorWidth,weightErrorLen,0);
             }

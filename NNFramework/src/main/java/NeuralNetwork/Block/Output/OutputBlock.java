@@ -5,9 +5,11 @@ import NeuralNetwork.Utils.Dim3Struct;
 
 import java.util.List;
 
-public interface OutputBlock extends WeightBlock<Dim3Struct,List<double[]>> {
+public interface OutputBlock<WeightsStruct> extends WeightBlock<WeightsStruct,List<double[]>> {
     double calculateLossFunc(List<double[]> expected);
 
     void calculateErrors(WeightBlock previousBlock);
+
+
 
 }

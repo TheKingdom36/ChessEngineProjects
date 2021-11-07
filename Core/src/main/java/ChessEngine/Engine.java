@@ -20,6 +20,15 @@ public class Engine<M extends Move,GState extends GameState> {
         this.monteCarloTree = new MonteCarloTree(predictor);
     }
 
+    public Engine(){
+
+    }
+
+    public void setUp(PolicyPredictor predictor){
+        this.predictor = predictor;
+        this.monteCarloTree = new MonteCarloTree(predictor);
+    }
+
     public M findBestMove(GState gameState) throws IllegalAccessException, InstantiationException{
         Move bestMove = monteCarloTree.findNextMove(gameState,10);
         return (M)bestMove;

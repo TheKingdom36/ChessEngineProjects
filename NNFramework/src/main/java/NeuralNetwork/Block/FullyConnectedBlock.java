@@ -122,10 +122,7 @@ public class FullyConnectedBlock extends FeatureBlock<Dim3Struct> {
 
     }
 
-    @Override
-    public Dim3Struct getOutput(){
-        return outputNeurons;
-    }
+
 
     @Override
     public void clearWeightErrors() {

@@ -9,12 +9,12 @@ import NeuralNetwork.Utils.NetworkDataSet;
 
 import java.util.List;
 
-public interface INeuralNetwork<LRule extends LearningRule,Output> {
-    Output evaluate(Dim3Struct input);
+public interface INeuralNetwork<LRule extends LearningRule> extends BlockExtendable<FeatureBlock> {
+    List<double[]> evaluate(Dim3Struct input);
 
-    Output evaluate(double[] inputs);
+    List<double[]> evaluate(double[] inputs);
 
-    double loss(Output expected);
+    double loss(List<double[]> expected);
 
     void addBlock(FeatureBlock block);
 
@@ -32,7 +32,7 @@ public interface INeuralNetwork<LRule extends LearningRule,Output> {
 
     void setInputBlock(InputBlock inputBlock);
 
-    void setOutputBlock(OutputBlock<Output> outputBlock);
+    void setOutputBlock(OutputBlock outputBlock);
 
     InputBlock getInputBlock();
 

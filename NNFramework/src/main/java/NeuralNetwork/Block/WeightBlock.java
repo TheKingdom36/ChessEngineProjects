@@ -19,13 +19,10 @@ public interface WeightBlock<WeightsStruct,Output> extends Block<Output> {
 
     void setWeights(WeightsStruct weights);
 
-    void calculateErrors(WeightBlock nextBlock,WeightBlock previousBlock);
-
     void resetErrors();
 
     void addToPostNeuronOperations(BlockOperation operation);
 
     Dim3Struct getNeuronErrors();
-
 
 }

@@ -36,6 +36,8 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Weights
 
     protected List<BlockOperation> postNeuronOperations;
 
+
+
     public FeatureBlock( Dim3Struct.Dims inputDims){
 
         this.inputNeuronsDims = inputDims;
@@ -134,10 +136,7 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Weights
 
     }
 
-    @Override
-    public Dim3Struct getOutput(){
-        return outputNeurons;
-    }
+
 
     @Override
     public void resetErrors() {
@@ -163,6 +162,12 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Weights
     protected abstract Dim3Struct calculateNeuronErrors(Dim3Struct nextNeuronErrors,Object nextWeights);
 
     protected abstract Dim3Struct blockCalculation(Dim3Struct Input);
+
+    @Override
+    public Dim3Struct getOutput(){
+        return outputNeurons;
+    }
+
 
 
 }

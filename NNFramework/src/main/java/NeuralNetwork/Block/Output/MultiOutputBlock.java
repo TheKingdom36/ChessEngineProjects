@@ -5,9 +5,17 @@ import NeuralNetwork.Block.WeightUpdateRule;
 import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Utils.Dim3Struct;
 
-public class MultiOutputBlock<Output> implements OutputBlock<Output> {
+import java.util.List;
+
+public class MultiOutputBlock implements OutputBlock<List<Dim3Struct>> {
+
+
+    public MultiOutputBlock(List<OutputBlock> blocks){
+
+    }
+
     @Override
-    public double calculateLossFunc(Output expected) {
+    public double calculateLossFunc(List<double[]> expected) {
         return 0;
     }
 
@@ -27,17 +35,12 @@ public class MultiOutputBlock<Output> implements OutputBlock<Output> {
     }
 
     @Override
-    public Dim3Struct getWeights() {
+    public List<Dim3Struct> getWeights() {
         return null;
     }
 
     @Override
-    public void setWeights(Dim3Struct weights) {
-
-    }
-
-    @Override
-    public void calculateErrors(WeightBlock nextBlock ,WeightBlock previousBlock) {
+    public void setWeights(List<Dim3Struct> weights) {
 
     }
 
@@ -62,7 +65,7 @@ public class MultiOutputBlock<Output> implements OutputBlock<Output> {
     }
 
     @Override
-    public Output calculate(Dim3Struct input) {
+    public List<double[]> calculate(Dim3Struct input) {
         return null;
     }
 
@@ -72,7 +75,7 @@ public class MultiOutputBlock<Output> implements OutputBlock<Output> {
     }
 
     @Override
-    public Output getOutput() {
+    public List<double[]> getOutput() {
         return null;
     }
 }

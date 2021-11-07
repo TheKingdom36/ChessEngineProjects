@@ -4,15 +4,14 @@ import GameBoard.ChessBoard.Enums.Color;
 import GameBoard.ChessBoard.Models.ChessBoard;
 import MontoCarlo.PolicyOutput;
 import MontoCarlo.PolicyPredictor;
-import NeuralNetwork.Block.ValuePolicyNetwork;
+import NeuralNetwork.Networks.ConvNetwork;
 import NeuralNetwork.Utils.Dim3Struct;
-import NeuralNetwork.Utils.ValuePolicyPair;
 
 public class ChessPolicyPredictor extends PolicyPredictor<Dim3Struct,ChessBoardState> {
 
-    ValuePolicyNetwork neuralNetwork;
+    ConvNetwork neuralNetwork;
 
-    public ChessPolicyPredictor(ValuePolicyNetwork network){
+    public ChessPolicyPredictor(ConvNetwork network){
         this.neuralNetwork = network;
     }
 
@@ -154,11 +153,9 @@ public class ChessPolicyPredictor extends PolicyPredictor<Dim3Struct,ChessBoardS
     @Override
     protected PolicyOutput evaluate(Dim3Struct dim3Struct) {
 
-        ValuePolicyPair pair = neuralNetwork.evaluate(dim3Struct);
+        //TODO
 
-        PolicyOutput output = new PolicyOutput(pair.getValue(),pair.getPolicy());
-
-        return output;
+        return null;
     }
 
     @Override

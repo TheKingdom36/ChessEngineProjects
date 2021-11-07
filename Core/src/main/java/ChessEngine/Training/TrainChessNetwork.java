@@ -8,9 +8,10 @@ import ChessEngine.Util.ConvertMoveToBlack;
 import GameBoard.ChessBoard.Enums.Color;
 import GameBoard.ChessBoard.Models.ChessBoard;
 import GameBoard.ChessBoard.Moves.ChessMove;
-import NeuralNetwork.Block.ValuePolicyNetwork;
+import NeuralNetwork.Networks.ConvNetwork;
 import NeuralNetwork.Utils.DataSet;
-import NeuralNetwork.Utils.ValuePolicyDataSetRow;
+import NeuralNetwork.Utils.NetworkDataSet;
+import NeuralNetwork.Utils.NetworkRow;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +23,7 @@ public class TrainChessNetwork {
     private Engine<ChessMove,ChessBoardState> engine;
 
     @Getter @Setter
-    private ValuePolicyNetwork network;
+    private ConvNetwork network;
 
     private ChessBoard chessBoard;
 
@@ -30,9 +31,9 @@ public class TrainChessNetwork {
 
     ChessBoardState chessBoardState = new ChessBoardState(chessBoard, Color.White);
 
-    DataSet<ValuePolicyDataSetRow> dataSet;
+    NetworkDataSet dataSet;
 
-    public TrainChessNetwork(Engine engine, ValuePolicyNetwork networkToTrain){
+    public TrainChessNetwork(Engine engine, ConvNetwork networkToTrain){
 
         this.engine = engine;
         this.network = networkToTrain;
@@ -44,7 +45,7 @@ public class TrainChessNetwork {
     }
 
 
-    public ValuePolicyNetwork train() throws IllegalAccessException, InstantiationException {
+    public ConvNetwork train() throws IllegalAccessException, InstantiationException {
         //Create dataset by playing game
         ChessBoard board = new ChessBoard();
         Color playerColor;

@@ -1,8 +1,6 @@
 package NeuralNetwork.Learning;
 
 
-import NeuralNetwork.Block.PolicyNeuralNetwork;
-import NeuralNetwork.Block.ValuePolicyNetwork;
 import NeuralNetwork.Utils.*;
 
 import java.util.Iterator;

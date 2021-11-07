@@ -3,12 +3,11 @@ package NeuralNetwork.Networks;
 import NeuralNetwork.ActivationFunctions.ActivationFunction;
 import NeuralNetwork.Block.*;
 import NeuralNetwork.Block.Output.BasicOutputBlock;
+import NeuralNetwork.Block.Output.MultiOutputBlock;
 import NeuralNetwork.Block.Output.OutputBlock;
-import NeuralNetwork.Block.Output.ValuePolicyOutputBlock;
 import NeuralNetwork.Learning.LearningRule;
 import NeuralNetwork.Learning.SGD;
 import NeuralNetwork.LossFunctions.LossFunction;
-import NeuralNetwork.NNBuilders.ConvNNBuilder;
 import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Operations.FlattenOp;
 import NeuralNetwork.Utils.Dim3Struct;
@@ -16,7 +15,7 @@ import NeuralNetwork.Utils.Dim3Struct;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
+public class ConvNetwork extends BasicNetwork<LearningRule> {
     @Override
     public void setUp() {
 
@@ -26,14 +25,14 @@ public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
         protected ConvNetwork neuralNetwork;
 
         protected WeightBlock lastBlock;
-        boolean inputProvided=false;
+        protected WeightBlock lastFeatureBlock;
 
-        boolean outputBlockSet;
+        boolean inputProvided=false;
+        private List<OutputBlock> outputBlocks;
 
         public builder(){
-
             neuralNetwork = new ConvNetwork();
-            outputBlockSet = false;
+            outputBlocks = new ArrayList<>();
         }
 
 
@@ -56,13 +55,16 @@ public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
 
 
         public builder addOutputBlock(int numOfOutputNeurons ,LossFunction lossFunction){
-            lastBlock.setUp();
-            BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,((Dim3Struct)lastBlock.getOutput()).totalNumOfValues(),lossFunction);
 
-            neuralNetwork.setOutputBlock(block);
-            lastBlock=  block;
+            if(outputBlocks.size()==0){
+                lastFeatureBlock.setUp();
+            }
 
-            outputBlockSet = true;
+            BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,((Dim3Struct) lastFeatureBlock.getOutput()).totalNumOfValues(),lossFunction);
+            outputBlocks.add(block);
+
+            lastBlock = block;
+
             return this;
         }
 
@@ -86,7 +88,6 @@ public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
             if (lastBlock == null && inputProvided == true) {
                 //only input has been provided
                 block = new ConvolutionalBlock(neuralNetwork.getInputBlock().getOutput().getDims() ,stride,padding,kernelWidth,kernelLength,numOfKernels,func);
-
             } else {
                 lastBlock.setUp();
                 block = new ConvolutionalBlock(((Dim3Struct)(lastBlock.getOutput())).getDims(),stride,padding,kernelWidth,kernelLength,numOfKernels,func);
@@ -94,6 +95,7 @@ public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
             }
 
             lastBlock = block;
+            lastFeatureBlock = block;
             neuralNetwork.addBlock(block);
 
 
@@ -110,7 +112,7 @@ public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
                 block = new FullyConnectedBlock(neuralNetwork.getInputBlock().getOutput().totalNumOfValues(), numOfNeurons, function);
             } else {
 
-                block = new FullyConnectedBlock(((Dim3Struct)lastBlock.getOutput()).totalNumOfValues(), numOfNeurons, function);
+                block = new FullyConnectedBlock(((Dim3Struct) lastBlock.getOutput()).totalNumOfValues(), numOfNeurons, function);
             }
 
             if (lastBlock instanceof ConvolutionalBlock) {
@@ -119,6 +121,7 @@ public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
             }
 
             lastBlock = block;
+            lastFeatureBlock = block;
             neuralNetwork.addBlock(block);
 
             return this;
@@ -129,13 +132,11 @@ public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
             if(lastBlock instanceof FullyConnectedBlock || lastBlock instanceof OutputBlock){
                 lastBlock.setWeights(weights);
             }else if(lastBlock instanceof ConvolutionalBlock){
-                throw new RuntimeException("A convoutional Block requires a list of Dim3struct");
+                throw new RuntimeException("A convolutional Block requires a list of Dim3struct");
             }
 
             return this;
         }
-
-
 
         public builder addWeights(ArrayList<Dim3Struct> weights){
             if(lastBlock instanceof FullyConnectedBlock ){
@@ -148,14 +149,19 @@ public class ConvNetwork extends BasicNetwork<LearningRule, List<double[]>> {
         }
 
 
-
-
-
         public ConvNetwork build() {
             if(neuralNetwork.getLearningRule() == null){
                 neuralNetwork.setLearningRule(new SGD());
             }
-            lastBlock.setUp();
+
+            outputBlocks.forEach(o->o.setUp());
+
+            if(outputBlocks.size()>1){
+                neuralNetwork.setOutputBlock(new MultiOutputBlock(outputBlocks));
+            }else {
+                neuralNetwork.setOutputBlock(outputBlocks.get(0));
+            }
+
             neuralNetwork.setUp();
 
             return neuralNetwork;

@@ -3,26 +3,30 @@ package NeuralNetwork.NNBuilders;
 import NeuralNetwork.Block.*;
 import NeuralNetwork.ActivationFunctions.ActivationFunction;
 import NeuralNetwork.Block.Output.BasicOutputBlock;
-import NeuralNetwork.Block.Output.ValuePolicyOutputBlock;
+import NeuralNetwork.Block.Output.MultiOutputBlock;
+import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Learning.LearningRule;
 import NeuralNetwork.Learning.SGD;
 import NeuralNetwork.LossFunctions.LossFunction;
 import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Utils.Dim3Struct;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
 
     protected BasicNetwork neuralNetwork;
 
     protected WeightBlock lastBlock;
+
+    private List<OutputBlock> outputBlocks;
     boolean inputProvided=false;
 
-    boolean outputBlockSet;
 
     public NNBuilder(){
-        outputBlockSet = false;
+        outputBlocks = new ArrayList<>();
     }
-
 
 
     @Override
@@ -45,28 +49,27 @@ public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
 
 
     @Override
-    public Type addPolicyOutputBlock(int numOfOutputNeurons ,LossFunction lossFunction){
+    public Type addOutputBlock(OutputBlock block){
         lastBlock.setUp();
-        BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,((Dim3Struct)lastBlock.getOutput()).totalNumOfValues(),lossFunction);
 
-        neuralNetwork.setOutputBlock(block);
-        lastBlock=  block;
+        outputBlocks.add(block);
 
-        outputBlockSet = true;
         return (Type)this;
     }
+
 
     @Override
-    public Type addValuePolicyOutputBlock(ValuePolicyOutputBlock block){
+    public Type addOutputBlock(int numOfOutputNeurons, LossFunction lossFunction){
         lastBlock.setUp();
 
-        neuralNetwork.setOutputBlock(block);
+        BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,((Dim3Struct)lastBlock.getOutput()).totalNumOfValues(),lossFunction);
 
-        lastBlock=block;
+        outputBlocks.add(block);
 
-        outputBlockSet = true;
         return (Type)this;
     }
+
+
 
     @Override
     public Type addFullyConnectedBlock(int numOfNeurons ,ActivationFunction function) {
@@ -117,6 +120,15 @@ public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
         if(neuralNetwork.getLearningRule() == null){
             neuralNetwork.setLearningRule(new SGD());
         }
+
+        outputBlocks.forEach(o->o.setUp());
+
+        if(outputBlocks.size()>1){
+            neuralNetwork.setOutputBlock(new MultiOutputBlock(outputBlocks));
+        }else {
+            neuralNetwork.setOutputBlock(outputBlocks.get(0));
+        }
+
         lastBlock.setUp();
         neuralNetwork.setUp();
 

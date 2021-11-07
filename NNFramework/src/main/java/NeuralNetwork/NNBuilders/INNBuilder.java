@@ -2,7 +2,7 @@ package NeuralNetwork.NNBuilders;
 
 import NeuralNetwork.ActivationFunctions.ActivationFunction;
 import NeuralNetwork.Block.BasicNetwork;
-import NeuralNetwork.Block.Output.ValuePolicyOutputBlock;
+import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Learning.LearningRule;
 import NeuralNetwork.LossFunctions.LossFunction;
 import NeuralNetwork.Operations.BlockOperation;
@@ -15,9 +15,7 @@ public interface INNBuilder{
 
     INNBuilder provideLearningRule(LearningRule rule);
 
-    INNBuilder addPolicyOutputBlock(int numOfOutputNeurons ,LossFunction lossFunction);
-
-    INNBuilder addValuePolicyOutputBlock(ValuePolicyOutputBlock block);
+    INNBuilder addOutputBlock(OutputBlock block);
 
     INNBuilder addFullyConnectedBlock(int numOfNeurons ,ActivationFunction function);
 
@@ -26,6 +24,8 @@ public interface INNBuilder{
     INNBuilder withPostOperation(BlockOperation block);
 
     INNBuilder generateWeights();
+
+    INNBuilder addOutputBlock(int numOfOutputNeurons, LossFunction lossFunction);
 
     BasicNetwork build();
 }

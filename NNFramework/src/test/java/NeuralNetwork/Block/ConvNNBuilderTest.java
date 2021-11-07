@@ -3,9 +3,6 @@ package NeuralNetwork.Block;
 import Events.LearningEvent;
 import Events.LearningEventListener;
 import NeuralNetwork.ActivationFunctions.ReLU;
-import NeuralNetwork.Block.Output.BasicOutput;
-import NeuralNetwork.Block.Output.BasicOutputBlock;
-import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Learning.SGD;
 import NeuralNetwork.LossFunctions.MSE;
 import NeuralNetwork.Mnist.MnistDataReaderDataSet;
@@ -27,7 +24,17 @@ public class ConvNNBuilderTest {
 
     //increase number of hidden layers
     @Test
-    public void CreateMnistConvWithConvNNBuilder() throws IOException {
+    public void FullCreateMnistConvWithConvNNBuilder() throws IOException {
+        CreateMnistConvWithConvNNBuilder(59000,1000);
+    }
+
+    @Test
+    public void ShortCreateMnistConvWithConvNNBuilder() throws IOException {
+        CreateMnistConvWithConvNNBuilder(1000,100);
+
+    }
+
+    private void CreateMnistConvWithConvNNBuilder(int trainSetSize,int testSetSize) throws IOException {
         ConvNNBuilder builder = new ConvNNBuilder();
         NetworkDataSet trainingSet;
         NetworkDataSet testSet;
@@ -65,9 +72,6 @@ public class ConvNNBuilderTest {
         trainingSet = new NetworkDataSet();
         testSet = new NetworkDataSet();
 
-        int trainSetSize = 59000;
-        int testSetSize = 1000;
-
         SGD sgd = new SGD();
         sgd.setMaxIterations(5);
         sgd.setLearningRate(0.01);
@@ -76,43 +80,43 @@ public class ConvNNBuilderTest {
             @Override
             public void handleLearningEvent(LearningEvent event) {
                 if(event.getEventType() == LearningEvent.Type.EPOCH_ENDED){
-                double totalLoss = 0;
+                    double totalLoss = 0;
 
-                int correctCount=0;
-                int incorrectCount=0;
-                for(int i=0;i<testSetSize;i++) {
-                    double[] result = network.evaluate(testSet.getSample(i).getInput()).get(0);
+                    int correctCount=0;
+                    int incorrectCount=0;
+                    for(int i=0;i<testSetSize;i++) {
+                        double[] result = network.evaluate(testSet.getSample(i).getInput()).get(0);
 
-                    int highest =0;
+                        int highest =0;
 
-                    for(int r=1;r<result.length;r++){
-                        if(result[highest]<result[r]){
-                            highest = r;
+                        for(int r=1;r<result.length;r++){
+                            if(result[highest]<result[r]){
+                                highest = r;
+                            }
+                        }
+
+                        double loss = network.loss(testSet.getSamples().get(i).getExpectedOutput());
+                        totalLoss += loss;
+
+                        int expected=0;
+                        for(int e=0;e<testSet.getSamples().get(i).getExpectedOutput().get(0).length;e++){
+                            if(testSet.getSamples().get(i).getExpectedOutput().get(0)[e]==1){
+                                expected=e;
+                                break;
+                            }
+                        }
+
+                        if(highest == expected){
+                            correctCount++;
+                        }else {
+                            incorrectCount++;
                         }
                     }
 
-                    double loss = network.loss(testSet.getSamples().get(i).getExpectedOutput());
-                    totalLoss += loss;
-
-                    int expected=0;
-                    for(int e=0;e<testSet.getSamples().get(i).getExpectedOutput().get(0).length;e++){
-                        if(testSet.getSamples().get(i).getExpectedOutput().get(0)[e]==1){
-                            expected=e;
-                            break;
-                        }
-                    }
-
-                    if(highest == expected){
-                        correctCount++;
-                    }else {
-                        incorrectCount++;
-                    }
+                    System.out.println("Epoch total loss " + totalLoss);
+                    System.out.println("Correct" + correctCount);
+                    System.out.println("Incorrect "+incorrectCount);
                 }
-
-                System.out.println("Epoch total loss " + totalLoss);
-                System.out.println("Correct" + correctCount);
-                System.out.println("Incorrect "+incorrectCount);
-            }
             }
         });
 

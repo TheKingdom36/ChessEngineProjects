@@ -38,16 +38,12 @@ public final class ConvolutionalBlock extends FeatureBlock<ArrayList<Dim3Struct>
         }
 
         if(weights==null){
-           throw new RuntimeException("Weights have not been intialised") ;
+            throw new RuntimeException("Weights have not been initialised") ;
         }
 
         verifyBlock();
     }
 
-    @Override
-    public Dim3Struct getOutput() {
-        return outputNeurons;
-    }
 
 
     @Override
