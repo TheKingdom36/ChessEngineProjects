@@ -2,13 +2,7 @@ package NeuralNetwork.Block;
 
 import NeuralNetwork.Utils.Dim4Struct;
 
-import java.util.ArrayList;
-
-public class BranchBlock extends FeatureBlock{
-
-    ArrayList<ArrayList<FeatureBlock>> paths;
-
-
+public class LogBlock extends FeatureBlock{
     @Override
     protected Dim4Struct calculateWeightErrors(Dim4Struct neuronErrors ,Dim4Struct inputNeurons) {
         return null;

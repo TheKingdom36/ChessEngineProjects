@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 
 public class SoftmaxOpTest {
-
+/*
     @Test
     public void DeltaCalculationAllValues1(){
         Dim3Struct neurons = new Dim3Struct(3,1,1);
@@ -60,5 +60,5 @@ public class SoftmaxOpTest {
 
         assertArrayEquals(expectedOutput,output.toArray());
 
-    }
+    }*/
 }

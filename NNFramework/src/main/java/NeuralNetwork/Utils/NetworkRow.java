@@ -3,9 +3,9 @@ package NeuralNetwork.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NetworkRow implements IDataSetRow<Dim3Struct, List<double[]>> {
+public class NetworkRow implements IDataSetRow<Dim4Struct, List<double[]>> {
 
-    private Dim3Struct input;
+    private Dim4Struct input;
 
     private List<double[]> output;
 
@@ -14,12 +14,12 @@ public class NetworkRow implements IDataSetRow<Dim3Struct, List<double[]>> {
     }
 
     @Override
-    public Dim3Struct getInput() {
+    public Dim4Struct getInput() {
         return input;
     }
 
     @Override
-    public void setInput(Dim3Struct input) {
+    public void setInput(Dim4Struct input) {
         this.input = input;
     }
 

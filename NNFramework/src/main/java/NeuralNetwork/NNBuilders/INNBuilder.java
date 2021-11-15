@@ -7,9 +7,10 @@ import NeuralNetwork.Learning.LearningRule;
 import NeuralNetwork.LossFunctions.LossFunction;
 import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.Dim4Struct;
 
 public interface INNBuilder{
-    INNBuilder addInputBlock(Dim3Struct.Dims inputSize);
+    INNBuilder addInputBlock(Dim4Struct.Dims inputSize);
 
     INNBuilder addInputBlock(double[] input);
 
@@ -19,7 +20,7 @@ public interface INNBuilder{
 
     INNBuilder addFullyConnectedBlock(int numOfNeurons ,ActivationFunction function);
 
-    INNBuilder addWeights(Dim3Struct weights);
+    INNBuilder addWeights(Dim4Struct weights);
 
     INNBuilder withPostOperation(BlockOperation block);
 

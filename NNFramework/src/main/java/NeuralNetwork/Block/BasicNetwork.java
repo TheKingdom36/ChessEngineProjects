@@ -2,7 +2,7 @@ package NeuralNetwork.Block;
 
 import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Learning.LearningRule;
-import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.Dim4Struct;
 import NeuralNetwork.Utils.NetworkDataSet;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,10 +19,7 @@ public abstract class BasicNetwork<LRule extends LearningRule> implements INeura
     @Getter
     LRule learningRule;
 
-
     ArrayList<FeatureBlock> blocks = new ArrayList<>();
-
-
 
     public double loss(List<double[]> expected){
 
@@ -33,6 +30,11 @@ public abstract class BasicNetwork<LRule extends LearningRule> implements INeura
     public void addBlock(FeatureBlock block){
         blocks.add(block);
     }
+    @Override
+    public void addBlocks(List<FeatureBlock> blocks){
+        this.blocks.addAll(blocks);
+    }
+
 
     @Override
     public void learn(NetworkDataSet dataSet){
@@ -82,27 +84,28 @@ public abstract class BasicNetwork<LRule extends LearningRule> implements INeura
         outputBlock.calculateErrors(blocks.get(blocks.size()-1));
 
         if(blocks.size() == 1){
-            blocks.get(blocks.size()-1).calculateErrors(inputBlock, outputBlock);
+            blocks.get(blocks.size()-1).calculateErrors(inputBlock.getOutputNeurons(), outputBlock.getNeuronErrors(),outputBlock.getWeights());
         }else{
-            blocks.get(blocks.size() - 1).calculateErrors(blocks.get(blocks.size() -2 ),outputBlock);
-
+            blocks.get(blocks.size() - 1).calculateErrors(blocks.get(blocks.size() -2 ).getOutput(),outputBlock.getNeuronErrors(),outputBlock.getWeights());
 
             for(int i = blocks.size()-2; i>=1; i--){
-                blocks.get(i).calculateErrors(blocks.get(i-1),blocks.get(i+1));
+                blocks.get(i).calculateErrors(blocks.get(i-1).getOutput(),blocks.get(i+1).getNeuronErrors(),blocks.get(i+1).getWeights());
             }
 
-            blocks.get(0).calculateErrors(inputBlock,blocks.get(1) );
+            blocks.get(0).calculateErrors(inputBlock.getOutputNeurons(),blocks.get(1).getNeuronErrors(),blocks.get(1).getWeights() );
 
         }
     }
 
     @Override
-    public List<double[]> evaluate(Dim3Struct input) {
+    public List<double[]> evaluate(Dim4Struct input) {
 
 
-        inputBlock.setOutputNeurons(input);
 
-        blocks.get(0).calculate(inputBlock.getOutput());
+
+
+
+        blocks.get(0).calculate(inputBlock.calculate(input));
 
         for (int i = 1; i< blocks.size() ; i++) {
             blocks.get(i).calculate(blocks.get(i-1).getOutput());
@@ -110,14 +113,29 @@ public abstract class BasicNetwork<LRule extends LearningRule> implements INeura
 
         outputBlock.calculate(blocks.get(blocks.size()-1).getOutput());
 
-        return (List<double[]>) outputBlock.getOutput();
+        ArrayList<double[]> output = new ArrayList<>();
+
+        //This probably wont work, becuase shape of outputs will be different need a function to produce
+        //actaully can be jagged array so should be fine, just need to be careful when definsing array
+
+        //after a branch block put a Flatton operation if not the output layer
+
+
+        double[] outArr = new double[outputBlock.getOutput().getValues()[0][0].length];
+        for(int i=0;i<outputBlock.getOutput().getValues()[0][0].length;i++){
+            outArr[i] = outputBlock.getOutput().getValues()[0][0][i][0];
+        }
+
+        output.add(outArr);
+
+        return  output;
     }
 
     @Override
     public List<double[]> evaluate(double[] inputs) {
-        Dim3Struct dim3Struct = new Dim3Struct(inputBlock.getOutput().getDims());
-        dim3Struct.populate(inputs);
-        return evaluate(dim3Struct);
+        Dim4Struct dim4Struct = new Dim4Struct(inputBlock.getOutput().getDims());
+        dim4Struct.populate(inputs);
+        return evaluate(dim4Struct);
     }
 
     @Override

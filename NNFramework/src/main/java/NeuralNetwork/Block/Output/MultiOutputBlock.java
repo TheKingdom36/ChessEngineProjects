@@ -1,18 +1,16 @@
 package NeuralNetwork.Block.Output;
 
+import NeuralNetwork.Block.FeatureBlock;
 import NeuralNetwork.Block.WeightBlock;
 import NeuralNetwork.Block.WeightUpdateRule;
 import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.Dim4Struct;
 
 import java.util.List;
 
-public class MultiOutputBlock implements OutputBlock<List<Dim3Struct>> {
+public class MultiOutputBlock implements OutputBlock {
 
-
-    public MultiOutputBlock(List<OutputBlock> blocks){
-
-    }
 
     @Override
     public double calculateLossFunc(List<double[]> expected) {
@@ -35,12 +33,12 @@ public class MultiOutputBlock implements OutputBlock<List<Dim3Struct>> {
     }
 
     @Override
-    public List<Dim3Struct> getWeights() {
+    public Dim4Struct getWeights() {
         return null;
     }
 
     @Override
-    public void setWeights(List<Dim3Struct> weights) {
+    public void setWeights(Dim4Struct weights) {
 
     }
 
@@ -50,12 +48,12 @@ public class MultiOutputBlock implements OutputBlock<List<Dim3Struct>> {
     }
 
     @Override
-    public void addToPostNeuronOperations(BlockOperation operation) {
+    public void addToPostCalculationOperations(BlockOperation operation) {
 
     }
 
     @Override
-    public Dim3Struct getNeuronErrors() {
+    public Dim4Struct getNeuronErrors() {
         return null;
     }
 
@@ -65,7 +63,7 @@ public class MultiOutputBlock implements OutputBlock<List<Dim3Struct>> {
     }
 
     @Override
-    public List<double[]> calculate(Dim3Struct input) {
+    public Dim4Struct calculate(Dim4Struct input) {
         return null;
     }
 
@@ -75,7 +73,7 @@ public class MultiOutputBlock implements OutputBlock<List<Dim3Struct>> {
     }
 
     @Override
-    public List<double[]> getOutput() {
+    public Dim4Struct getOutput() {
         return null;
     }
 }

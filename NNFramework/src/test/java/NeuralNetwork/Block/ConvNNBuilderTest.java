@@ -8,6 +8,7 @@ import NeuralNetwork.LossFunctions.MSE;
 import NeuralNetwork.Mnist.MnistDataReaderDataSet;
 import NeuralNetwork.NNBuilders.ConvNNBuilder;
 import NeuralNetwork.Networks.ConvNetwork;
+import NeuralNetwork.Operations.FlattenOp;
 import NeuralNetwork.Operations.SoftmaxOp;
 import NeuralNetwork.Utils.*;
 import NeuralNetwork.WeightIntializers.uniformDistribution;
@@ -25,12 +26,12 @@ public class ConvNNBuilderTest {
     //increase number of hidden layers
     @Test
     public void FullCreateMnistConvWithConvNNBuilder() throws IOException {
-        CreateMnistConvWithConvNNBuilder(59000,1000);
+        CreateMnistConvWithConvNNBuilder(40000,1000);
     }
 
     @Test
     public void ShortCreateMnistConvWithConvNNBuilder() throws IOException {
-        CreateMnistConvWithConvNNBuilder(1000,100);
+        CreateMnistConvWithConvNNBuilder(10000,1000);
 
     }
 
@@ -41,27 +42,27 @@ public class ConvNNBuilderTest {
         int numOfNeurons = 128;
         Random rand = new Random();
 
-        Dim3Struct FCWeights = new Dim3Struct(numOfNeurons,2028,1);
-        double[] we = uniformDistribution.generateValues(numOfNeurons*2028,0.1,-0.1);
-        UtilityMethods.PopulateDimStruct(FCWeights,we);
+        Dim4Struct FCWeights = new Dim4Struct(1,1,numOfNeurons,1728);
+        populateWeights(FCWeights);
 
-        ArrayList<Dim3Struct> convWeights= new ArrayList<>();
-        for(int i=0;i<3; i++){
-            Dim3Struct dim3Struct = new Dim3Struct(3,3,1);
-            double[] weightValues = uniformDistribution.generateValues(3*3*1,0.1,-0.1);
-            UtilityMethods.PopulateDimStruct(dim3Struct,weightValues);
+        Dim4Struct FCWeights2 = new Dim4Struct(1,1,numOfNeurons,128);
+        populateWeights(FCWeights2);
 
-            convWeights.add(dim3Struct);
-        }
-
-        Dim3Struct outputWeights = new Dim3Struct(10,numOfNeurons,1);
-        we = uniformDistribution.generateValues(10*numOfNeurons,0.1,-0.1);
-        UtilityMethods.PopulateDimStruct(outputWeights,we);
+        Dim4Struct convWeights= new Dim4Struct(3,1,3,3);
+        populateWeights(convWeights);
 
 
+        Dim4Struct convWeights2= new Dim4Struct(3,3,3,3);
+        populateWeights(convWeights2);
 
-        ConvNetwork network = new ConvNetwork.builder().addInputBlock(new Dim3Struct.Dims(28,28,1))
+        Dim4Struct outputWeights = new Dim4Struct(1,1,10,numOfNeurons);
+        populateWeights(outputWeights);
+
+
+
+        ConvNetwork network = new ConvNetwork.builder().addInputBlock(new Dim4Struct.Dims(1,1,28,28))
                 .addConvBlock(1,0,3,3,3,new ReLU()).addWeights(convWeights)
+                .addConvBlock(1,0,3,3,3,new ReLU()).addWeights(convWeights2)
                 .addFullyConnectedBlock(numOfNeurons,new ReLU()).addWeights(FCWeights)
                 .addOutputBlock(10,new MSE())
                 .addWeights(outputWeights).withPostOperation(new SoftmaxOp())
@@ -138,5 +139,11 @@ public class ConvNNBuilderTest {
 
 
         assertEquals(0,1);
+    }
+
+    public void populateWeights(Dim4Struct toPopulate){
+        double[] we = uniformDistribution.generateValues(toPopulate.totalNumOfValues(),0.1,-0.1);
+        UtilityMethods.PopulateDimStruct(toPopulate,we);
+
     }
 }

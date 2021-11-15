@@ -1,22 +1,13 @@
 package NeuralNetwork.Block.Output;
 
-import NeuralNetwork.Block.FeatureBlock;
 import NeuralNetwork.Block.WeightBlock;
 import NeuralNetwork.Block.WeightUpdateRule;
-import NeuralNetwork.Exceptions.DimensionMismatch;
-import NeuralNetwork.LossFunctions.LossFunction;
 import NeuralNetwork.Operations.BlockOperation;
-import NeuralNetwork.Operations.Operation;
-import NeuralNetwork.Utils.Dim3Struct;
 import NeuralNetwork.Utils.Dim4Struct;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class newOutput implements OutputBlock {
-
+public class FCOutput implements OutputBlock{
     @Override
     public double calculateLossFunc(List<double[]> expected) {
         return 0;

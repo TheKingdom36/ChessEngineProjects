@@ -61,7 +61,7 @@ public class MnistDataReaderDataSet {
             }
 
             sample.addExpectedOutput(outputArray);
-            Dim3Struct struct = new Dim3Struct(28,28,1);
+            Dim4Struct struct = new Dim4Struct(1,1,28,28);
             struct.populate(inputArray);
             sample.setInput(struct);
             samples[i]= sample;

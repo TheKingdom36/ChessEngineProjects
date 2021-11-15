@@ -2,10 +2,11 @@ package NeuralNetwork.Operations;
 
 import NeuralNetwork.Utils.Dim3Struct;
 import NeuralNetwork.Functions.Softmax;
+import NeuralNetwork.Utils.Dim4Struct;
 
 public class SoftmaxOp extends BlockOperation{
 
-    Dim3Struct outputNeurons;
+    Dim4Struct outputNeurons;
 
     public SoftmaxOp(){
 
@@ -14,12 +15,12 @@ public class SoftmaxOp extends BlockOperation{
 
 
     @Override
-    public Dim3Struct doOp(Dim3Struct input) {
+    public Dim4Struct doOp(Dim4Struct input) {
         outputNeurons = input.Copy();
         double[] softmaxResult = Softmax.calculate(input.toArray());
 
         for(int i=0 ; i<softmaxResult.length;i++){
-            outputNeurons.getValues()[i][0][0] = softmaxResult[i];
+            outputNeurons.getValues()[0][0][i][0] = softmaxResult[i];
         }
 
         return outputNeurons;
@@ -27,21 +28,21 @@ public class SoftmaxOp extends BlockOperation{
 
 
     @Override
-    public Dim3Struct calculateDeltas(Dim3Struct deltas) {
+    public Dim4Struct calculateDeltas(Dim4Struct deltas) {
 
 
-        Dim3Struct newDeltas = new Dim3Struct(outputNeurons.getDims());
+        Dim4Struct newDeltas = new Dim4Struct(outputNeurons.getDims());
 
         double[] neuronsArray = outputNeurons.toArray();
         for(int i=0; i<newDeltas.getWidth();i++){
             double value = 0;
             for(int j=0; j<outputNeurons.getWidth();j++){
                 double derivative = Softmax.calculateDerivative(neuronsArray,i,j);
-                double delta = deltas.getValues()[j][0][0];
+                double delta = deltas.getValues()[0][0][j][0];
                 value += (derivative*delta);
             }
 
-            newDeltas.getValues()[i][0][0] = value;
+            newDeltas.getValues()[0][0][i][0] = value;
         }
 
         return newDeltas;

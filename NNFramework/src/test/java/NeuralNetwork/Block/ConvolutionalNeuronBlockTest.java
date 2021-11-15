@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 class ConvolutionalNeuronBlockTest {
-
+/*
     @Test
     void testBlockCalculationStride_3Padding_1Kernel3_3_3Input7_7_3() {
 

@@ -9,16 +9,19 @@ import java.util.List;
 
 public class UtilityMethods {
 
-    public static void PopulateDimStruct(Dim3Struct struct, double[] values){
+    public static void PopulateDimStruct(Dim4Struct struct, double[] values){
         int inter=0;
-        for(int k=0;k<struct.getDepth();k++){
+        for(int t=0;t<struct.getNum();t++){
+
+            for(int k=0;k<struct.getChannels();k++){
             for (int i=0; i<struct.getWidth();i++){
                 for(int j=0;j<struct.getLength();j++){
-                    struct.getValues()[i][j][k] = values[inter];
+                    struct.getValues()[t][k][i][j] = values[inter];
                     inter++;
                 }
             }
         }
+    }
     }
 
     public static NetworkDataSet LoadMINSTDataSet() throws IOException {
@@ -37,7 +40,7 @@ public class UtilityMethods {
             outputArray[output] = 1;
             NetworkRow newRow = new NetworkRow();
 
-            Dim3Struct struct = new Dim3Struct(28,28,1);
+            Dim4Struct struct = new Dim4Struct(1,1,28,28);
             struct.populate(inputArray);
             newRow.setInput(struct);
 

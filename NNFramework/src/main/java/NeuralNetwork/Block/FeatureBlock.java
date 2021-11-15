@@ -3,6 +3,7 @@ package NeuralNetwork.Block;
 import NeuralNetwork.ActivationFunctions.ActivationFunction;
 import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.Dim4Struct;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,41 +11,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<WeightsStruct,Dim3Struct> {
+public abstract class FeatureBlock implements WeightBlock {
 
 
     protected ActivationFunction activationFunction;
 
     @Getter
     @Setter
-    protected WeightsStruct weights;
+    protected Dim4Struct weights;
 
     @Getter @Setter
-    protected WeightsStruct weightErrors;
+    protected Dim4Struct weightErrors;
 
     @Getter @Setter
-    public Dim3Struct outputNeurons;
+    public Dim4Struct outputNeurons;
 
     @Getter
     @Setter
-    protected Dim3Struct neurons;
+    protected Dim4Struct neurons;
 
     @Getter @Setter
-    protected Dim3Struct neuronErrors;
+    protected Dim4Struct neuronErrors;
     @Getter @Setter
-    protected Dim3Struct.Dims inputNeuronsDims;
+    protected Dim4Struct.Dims inputNeuronsDims;
 
     protected List<BlockOperation> postNeuronOperations;
 
 
 
-    public FeatureBlock( Dim3Struct.Dims inputDims){
+    public FeatureBlock( Dim4Struct.Dims inputDims){
 
         this.inputNeuronsDims = inputDims;
 
     }
 
-    public FeatureBlock(Dim3Struct.Dims inputDims, ActivationFunction func){
+    public FeatureBlock(Dim4Struct.Dims inputDims, ActivationFunction func){
 
         this.activationFunction = func;
 
@@ -58,13 +59,13 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Weights
 
     }
 
-    public void addToPostNeuronOperations(BlockOperation blockOperation){
+    public void addToPostCalculationOperations(BlockOperation blockOperation){
         postNeuronOperations.add(blockOperation);
     };
 
 
 
-    public Dim3Struct calculate(Dim3Struct Input){
+    public Dim4Struct calculate(Dim4Struct Input){
 
         neurons.clear();
         
@@ -89,50 +90,24 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Weights
 
 
 
-    public void calculateErrors(WeightBlock previousBlock, WeightBlock nextBlock){
+    public void calculateErrors(Dim4Struct previousBlockOutput,Dim4Struct nextBlockNeuronErrors, Dim4Struct nextBlockWeights){
 
-        neuronErrors = calculateNeuronErrors(nextBlock.getNeuronErrors() ,nextBlock.getWeights());
+        neuronErrors = calculateNeuronErrors(nextBlockNeuronErrors ,nextBlockWeights);
 
-        for(int i=0;i<neuronErrors.getWidth();i++){
-            for(int j=0;j<neuronErrors.getLength();j++){
-                for (int k=0;k<neuronErrors.getDepth();k++){
-                    neuronErrors.getValues()[i][j][k] = neuronErrors.getValues()[i][j][k]*activationFunction.getDerivative(outputNeurons.getValues()[i][j][k]);
+        for(int i=0;i<neuronErrors.getWidth();i++) {
+            for (int j = 0; j < neuronErrors.getLength(); j++) {
+                for (int k = 0; k < neuronErrors.getChannels(); k++) {
+                    for (int t = 0; t < neuronErrors.getNum(); t++) {
+                        neuronErrors.getValues()[t][k][i][j] = neuronErrors.getValues()[t][k][i][j] * activationFunction.getDerivative(outputNeurons.getValues()[t][k][i][j]);
+                    }
                 }
             }
         }
-
         for(int i= postNeuronOperations.size()-1;i>=0;i--){
             neuronErrors = postNeuronOperations.get(i).calculateDeltas(neuronErrors);
         }
 
-        weightErrors = calculateWeightErrors(neuronErrors,(Dim3Struct) previousBlock.getOutput());
-
-    }
-
-    public void calculateErrors(InputBlock inputBlock, WeightBlock nextBlock){
-
-        neuronErrors = calculateNeuronErrors(nextBlock.getNeuronErrors() ,nextBlock.getWeights());
-
-
-        for(int i=0;i<neuronErrors.getWidth();i++){
-            for(int j=0;j<neuronErrors.getLength();j++){
-                for (int k=0;k<neuronErrors.getDepth();k++){
-                    neuronErrors.getValues()[i][j][k] = neuronErrors.getValues()[i][j][k]*activationFunction.getDerivative(outputNeurons.getValues()[i][j][k]);
-                }
-            }
-        }
-
-        for(int i= postNeuronOperations.size()-1;i>=0;i--){
-            neuronErrors = postNeuronOperations.get(i).calculateDeltas(neuronErrors);
-        }
-
-
-
-
-
-
-        weightErrors = calculateWeightErrors(neuronErrors,(Dim3Struct) inputBlock.getOutput());
-
+        weightErrors = calculateWeightErrors(neuronErrors, previousBlockOutput);
 
     }
 
@@ -153,18 +128,17 @@ public abstract class FeatureBlock<WeightsStruct> implements WeightBlock<Weights
      */
     public void verifyBlock(){
 
-        calculate(new Dim3Struct(inputNeuronsDims));
+        calculate(new Dim4Struct(inputNeuronsDims));
     }
 
+    protected abstract Dim4Struct calculateWeightErrors(Dim4Struct neuronErrors,Dim4Struct inputNeurons);
 
-    protected abstract WeightsStruct calculateWeightErrors(Dim3Struct neuronErrors,Dim3Struct inputNeurons);
+    protected abstract Dim4Struct calculateNeuronErrors(Dim4Struct nextNeuronErrors,Dim4Struct nextWeights);
 
-    protected abstract Dim3Struct calculateNeuronErrors(Dim3Struct nextNeuronErrors,Object nextWeights);
-
-    protected abstract Dim3Struct blockCalculation(Dim3Struct Input);
+    protected abstract Dim4Struct blockCalculation(Dim4Struct Input);
 
     @Override
-    public Dim3Struct getOutput(){
+    public Dim4Struct getOutput(){
         return outputNeurons;
     }
 

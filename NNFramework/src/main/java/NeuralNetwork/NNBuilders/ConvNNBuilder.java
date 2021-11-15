@@ -2,11 +2,8 @@ package NeuralNetwork.NNBuilders;
 
 import NeuralNetwork.Block.*;
 import NeuralNetwork.ActivationFunctions.ActivationFunction;
-import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Operations.FlattenOp;
-import NeuralNetwork.Utils.Dim3Struct;
-
-import java.util.ArrayList;
+import NeuralNetwork.Utils.Dim4Struct;
 
 public class ConvNNBuilder extends NNBuilder<ConvNNBuilder> implements IConvNNBuilder {
 
@@ -22,7 +19,7 @@ public class ConvNNBuilder extends NNBuilder<ConvNNBuilder> implements IConvNNBu
 
         } else {
             lastBlock.setUp();
-            block = new ConvolutionalBlock(((Dim3Struct)(lastBlock.getOutput())).getDims(),stride,padding,kernelWidth,kernelLength,numOfKernels,func);
+            block = new ConvolutionalBlock(((lastBlock.getOutput())).getDims(),stride,padding,kernelWidth,kernelLength,numOfKernels,func);
 
         }
 
@@ -43,11 +40,11 @@ public class ConvNNBuilder extends NNBuilder<ConvNNBuilder> implements IConvNNBu
             block = new FullyConnectedBlock(neuralNetwork.getInputBlock().getOutput().totalNumOfValues(), numOfNeurons, function);
         } else {
 
-            block = new FullyConnectedBlock(((Dim3Struct)lastBlock.getOutput()).totalNumOfValues(), numOfNeurons, function);
+            block = new FullyConnectedBlock((lastBlock.getOutput()).totalNumOfValues(), numOfNeurons, function);
         }
 
         if (lastBlock instanceof ConvolutionalBlock) {
-            lastBlock.addToPostNeuronOperations(new FlattenOp());
+            lastBlock.addToPostCalculationOperations(new FlattenOp());
 
         }
 
@@ -58,26 +55,13 @@ public class ConvNNBuilder extends NNBuilder<ConvNNBuilder> implements IConvNNBu
     }
 
     @Override
-    public ConvNNBuilder addWeights(Dim3Struct weights){
-        if(lastBlock instanceof FullyConnectedBlock || lastBlock instanceof OutputBlock){
-            lastBlock.setWeights(weights);
-        }else if(lastBlock instanceof ConvolutionalBlock){
-            throw new RuntimeException("A convoutional Block requires a list of Dim3struct");
-        }
+    public ConvNNBuilder addWeights(Dim4Struct weights){
+        lastBlock.setWeights(weights);
 
         return this;
     }
 
 
-    @Override
-    public ConvNNBuilder addWeights(ArrayList<Dim3Struct> weights){
-        if(lastBlock instanceof FullyConnectedBlock ){
-            throw new RuntimeException("A fully connected Block requires a single Dim3struct");
-        }else if(lastBlock instanceof ConvolutionalBlock){
-            lastBlock.setWeights(weights);
-        }
 
-        return this;
-    }
 
 }

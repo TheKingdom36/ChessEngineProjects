@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 
 public class TestFullyConnectedNeuronBlock {
+    /*
     @Test
     public void SingleFFBlockForwardPass(){
         Dim3Struct input = new Dim3Struct(3,1,1);
@@ -390,5 +391,5 @@ FCBlock.setWeights(weights);
 
         assertEquals(expectedWeightErrors,FCB.getWeightErrors());
 
-    }
+    }*/
 }

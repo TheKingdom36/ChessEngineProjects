@@ -9,7 +9,7 @@ import NeuralNetwork.Learning.LearningRule;
 import NeuralNetwork.Learning.SGD;
 import NeuralNetwork.LossFunctions.LossFunction;
 import NeuralNetwork.Operations.BlockOperation;
-import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.Dim4Struct;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +30,14 @@ public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
 
 
     @Override
-    public Type addInputBlock(Dim3Struct.Dims inputSize){
+    public Type addInputBlock(Dim4Struct.Dims inputSize){
         neuralNetwork.setInputBlock(new InputBlock(inputSize));
         inputProvided=true;
         return (Type)this;
     }
     @Override
     public Type addInputBlock(double[] input){
-        return addInputBlock(new Dim3Struct.Dims(input.length,1,1));
+        return addInputBlock(new Dim4Struct.Dims(1,1,input.length,1));
 
     }
 
@@ -62,7 +62,7 @@ public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
     public Type addOutputBlock(int numOfOutputNeurons, LossFunction lossFunction){
         lastBlock.setUp();
 
-        BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,((Dim3Struct)lastBlock.getOutput()).totalNumOfValues(),lossFunction);
+        BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,(lastBlock.getOutput()).totalNumOfValues(),lossFunction);
 
         outputBlocks.add(block);
 
@@ -81,7 +81,7 @@ public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
             block = new FullyConnectedBlock(neuralNetwork.getInputBlock().getOutput().totalNumOfValues(), numOfNeurons, function);
         } else {
             lastBlock.setUp();
-            block = new FullyConnectedBlock(((Dim3Struct)lastBlock.getOutput()).totalNumOfValues(), numOfNeurons, function);
+            block = new FullyConnectedBlock((lastBlock.getOutput()).totalNumOfValues(), numOfNeurons, function);
         }
 
         lastBlock = block;
@@ -93,7 +93,7 @@ public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
 
 
     @Override
-    public Type addWeights(Dim3Struct weights){
+    public Type addWeights(Dim4Struct weights){
         lastBlock.setWeights(weights);
         return (Type)this;
     }
@@ -101,7 +101,7 @@ public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
 
     @Override
     public Type withPostOperation(BlockOperation block){
-        lastBlock.addToPostNeuronOperations(block);
+        lastBlock.addToPostCalculationOperations(block);
         return (Type)this;
     }
 
@@ -124,7 +124,7 @@ public class NNBuilder<Type extends INNBuilder> implements INNBuilder {
         outputBlocks.forEach(o->o.setUp());
 
         if(outputBlocks.size()>1){
-            neuralNetwork.setOutputBlock(new MultiOutputBlock(outputBlocks));
+            neuralNetwork.setOutputBlock(new MultiOutputBlock());
         }else {
             neuralNetwork.setOutputBlock(outputBlocks.get(0));
         }

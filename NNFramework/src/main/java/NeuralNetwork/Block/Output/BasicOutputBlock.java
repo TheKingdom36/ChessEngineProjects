@@ -6,36 +6,37 @@ import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Exceptions.DimensionMismatch;
 import NeuralNetwork.Operations.Operation;
 import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.Dim4Struct;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendable<FeatureBlock> {
+public class BasicOutputBlock implements OutputBlock {
 
     private double[] expectedArray;
     private int numOfBlockNeurons;
     @Getter
-    private Dim3Struct outputNeurons;
+    private Dim4Struct outputNeurons;
     ArrayList<Operation> operations;
     private LossFunction lossFunction;
     @Getter @Setter
-    Dim3Struct weights;
+    Dim4Struct weights;
     protected List<BlockOperation> postNeuronOperations;
     @Getter
-    private Dim3Struct neurons;
+    private Dim4Struct neurons;
     @Getter
-    private Dim3Struct weightErrors;
+    private Dim4Struct weightErrors;
     @Getter
-    private Dim3Struct neuronErrors;
+    private Dim4Struct neuronErrors;
 
     List<FeatureBlock> blocks;
 
-    Dim3Struct.Dims inputNeuronsDims;
+    Dim4Struct.Dims inputNeuronsDims;
 
     public BasicOutputBlock(int numBlockNeurons, int numInputNeurons, LossFunction lossFunction){
-        inputNeuronsDims = new Dim3Struct.Dims(numInputNeurons,1,1) ;
+        inputNeuronsDims = new Dim4Struct.Dims(1,1,numInputNeurons,1) ;
         this.numOfBlockNeurons = numBlockNeurons;
         this.lossFunction = lossFunction;
         postNeuronOperations = new ArrayList<>();
@@ -48,8 +49,8 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
     }
 
 
-    public void generateFeatureBlWeights(Dim3Struct.Dims inputDims) {
-        weights = new Dim3Struct(neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getDepth(),1);
+    public void generateFeatureBlWeights(Dim4Struct.Dims inputDims) {
+        weights = new Dim4Struct(1,1,neurons.totalNumOfValues(),inputDims.getWidth()*inputDims.getLength()*inputDims.getChannel());
     }
 
 
@@ -59,17 +60,17 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
 
 
         if(neurons ==null ){
-            neurons = new Dim3Struct(numOfBlockNeurons,1,1);
+            neurons = new Dim4Struct(1,1,numOfBlockNeurons,1);
         }
         if(weights == null){
-                weights = new Dim3Struct(neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getDepth() ,1);
+                weights = new Dim4Struct(1,1,neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getChannel());
         }
 
         verifyBlock();
     }
 
     @Override
-    public List<double[]> calculate(Dim3Struct Input){
+    public Dim4Struct calculate(Dim4Struct Input){
 
         outputNeurons = Input.Copy();
         neurons.clear();
@@ -82,9 +83,8 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
             outputNeurons = operation.doOp(outputNeurons);
         }
 
-        List<double[]> toReturn = new ArrayList<>();
-        toReturn.add(outputNeurons.toArray());
-        return toReturn;
+
+        return outputNeurons;
     }
 
 
@@ -94,10 +94,10 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
 
         for(int i=0;i<weights.getWidth();i++){
             for(int j=0;j<weights.getLength();j++){
-                for(int k=0;k<weights.getDepth();k++){
+                for(int k=0;k<weights.getChannels();k++){
 
 
-                    this.weights.getValues()[i][j][k] = rule.calculate(weights.getValues()[i][j][k],weightErrors.getValues()[i][j][k]);
+                    this.weights.getValues()[0][k][i][j] = rule.calculate(weights.getValues()[0][k][i][j],weightErrors.getValues()[0][k][i][j]);
 
                 }
             }
@@ -106,8 +106,8 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
     }
 
     @Override
-    public void setWeights(Dim3Struct weights) {
-        this.weights = (Dim3Struct)weights;
+    public void setWeights(Dim4Struct weights) {
+        this.weights = weights;
     }
 
 
@@ -123,14 +123,12 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
     }
 
     @Override
-    public List<double[]> getOutput() {
+    public Dim4Struct getOutput() {
 
-        List<double[]> toReturn = new ArrayList<>();
-        toReturn.add(outputNeurons.toArray());
-        return toReturn;
+        return outputNeurons;
     }
 
-    private Dim3Struct blockCalculation(Dim3Struct inputNeurons) {
+    private Dim4Struct blockCalculation(Dim4Struct inputNeurons) {
         if(neurons.getWidth() != weights.getWidth() || inputNeurons.getWidth() != weights.getLength())
         {
 
@@ -140,7 +138,7 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
                     + " Input dims: " + inputNeurons.getWidth() + " " + inputNeurons.getLength();
 
             throw new DimensionMismatch(message);
-        }else if(inputNeurons.getLength() != 1 || inputNeurons.getDepth() != 1){
+        }else if(inputNeurons.getLength() != 1 || inputNeurons.getChannels() != 1){
             throw new RuntimeException("Input must be of dimensions X 1 1");
         }
 
@@ -149,7 +147,7 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
         for (int wghtWidth =0; wghtWidth <weights.getWidth(); wghtWidth++) {
             for (int wghtLength = 0; wghtLength < weights.getLength(); wghtLength++) {
 
-                neurons.getValues()[blockNeuronsCount][0][0] += inputNeurons.getValues()[wghtLength][0][0]*weights.getValues()[wghtWidth][wghtLength][0];
+                neurons.getValues()[0][0][blockNeuronsCount][0] += inputNeurons.getValues()[0][0][wghtLength][0]*weights.getValues()[0][0][wghtWidth][wghtLength];
 
             }
             blockNeuronsCount++;
@@ -172,7 +170,7 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
     }
 
     @Override
-    public void addToPostNeuronOperations(BlockOperation operation) {
+    public void addToPostCalculationOperations(BlockOperation operation) {
 
     }
 
@@ -186,22 +184,23 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
             neuronErrors = postNeuronOperations.get(i).calculateDeltas(neuronErrors);
         }
 
-        weightErrors = calculateWeightErrors(neuronErrors,(Dim3Struct) previousBlock.getOutput());
+        weightErrors = calculateWeightErrors(neuronErrors,previousBlock.getOutput());
 
 
     }
 
 
-    private Dim3Struct calculateWeightErrors(Dim3Struct neuronErrors,Dim3Struct inputNeurons) {
+    private Dim4Struct calculateWeightErrors(Dim4Struct neuronErrors,Dim4Struct inputNeurons) {
 
-        this.weightErrors = new Dim3Struct(weights.getDims());
+        this.weightErrors = new Dim4Struct(weights.getDims());
 
         for(int weightErrorWidth=0;weightErrorWidth<weightErrors.getWidth();weightErrorWidth++) {
             for(int weightErrorLen=0;weightErrorLen<weightErrors.getLength();weightErrorLen++) {
             //    System.out.println(weightErrorWidth +" "+weightErrorLen + " " + Deltas.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0]);
          //       weightErrors.getValues()[weightErrorWidth][weightErrorLen][0] = neuronErrors.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0];
+                weightErrors.getValues()[0][0][weightErrorWidth][weightErrorLen] = neuronErrors.getValues()[0][0][weightErrorWidth][0] * inputNeurons.getValues()[0][0][weightErrorLen][0];
 
-                weightErrors.setValue(neuronErrors.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0],weightErrorWidth,weightErrorLen,0);
+             //   weightErrors.setValue(neuronErrors.getValues()[weightErrorWidth][0][0] * inputNeurons.getValues()[weightErrorLen][0][0],weightErrorWidth,weightErrorLen,0);
             }
         }
 
@@ -212,9 +211,9 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
 
 
 
-    private Dim3Struct calculateNeuronErrors() {
+    private Dim4Struct calculateNeuronErrors() {
 
-        neuronErrors = new Dim3Struct(neurons.getDims());
+        neuronErrors = new Dim4Struct(neurons.getDims());
         neuronErrors.populate(lossFunction.calculateDerivative(outputNeurons.toArray(),expectedArray));
 
 
@@ -222,8 +221,5 @@ public class BasicOutputBlock implements OutputBlock<Dim3Struct>, BlockExtendabl
     }
 
 
-    @Override
-    public void addBlock(FeatureBlock featureBlock) {
 
-    }
 }

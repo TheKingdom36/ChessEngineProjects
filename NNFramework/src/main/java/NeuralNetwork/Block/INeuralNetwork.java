@@ -5,18 +5,21 @@ import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Learning.LearningRule;
 import NeuralNetwork.Utils.DataSet;
 import NeuralNetwork.Utils.Dim3Struct;
+import NeuralNetwork.Utils.Dim4Struct;
 import NeuralNetwork.Utils.NetworkDataSet;
 
 import java.util.List;
 
 public interface INeuralNetwork<LRule extends LearningRule> extends BlockExtendable<FeatureBlock> {
-    List<double[]> evaluate(Dim3Struct input);
+    List<double[]> evaluate(Dim4Struct input);
 
     List<double[]> evaluate(double[] inputs);
 
     double loss(List<double[]> expected);
 
     void addBlock(FeatureBlock block);
+
+    void addBlocks(List<FeatureBlock> blocks);
 
     void learn(NetworkDataSet dataSet);
 
