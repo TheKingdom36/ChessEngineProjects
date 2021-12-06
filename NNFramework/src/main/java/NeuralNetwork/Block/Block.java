@@ -19,7 +19,7 @@ public interface Block {
 
     Dim4Struct getOutput();
 
-    void addToPostCalculationOperations(BlockOperation operation);
+
 
 
 

@@ -3,12 +3,14 @@ package NeuralNetwork.Block;
 
 import NeuralNetwork.ActivationFunctions.ActivationFunction;
 import NeuralNetwork.Exceptions.DimensionMismatch;
-import NeuralNetwork.Utils.Dim3Struct;
 import NeuralNetwork.Utils.Dim4Struct;
+import lombok.Getter;
 
-public class FullyConnectedBlock extends FeatureBlock {
+public class FullyConnectedBlock extends SingleFeatureBlock {
 
-    int numBlockNeurons;
+    @Getter
+    private int numBlockNeurons;
+
     public FullyConnectedBlock(int numInputNeurons, int numBlockNeurons, ActivationFunction actFunc){
         super(new Dim4Struct.Dims(1,1,numInputNeurons,1),actFunc);
         this.numBlockNeurons = numBlockNeurons;
@@ -24,8 +26,13 @@ public class FullyConnectedBlock extends FeatureBlock {
             neurons = new Dim4Struct(1,1,numBlockNeurons,1);
         }
         if(weights == null){
-                weights = new Dim4Struct(1,1,neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getChannel());
+
+            Dim4Struct.Dims weightDims = new Dim4Struct.Dims(1,1,neurons.totalNumOfValues() ,inputNeuronsDims.getWidth() * inputNeuronsDims.getLength() * inputNeuronsDims.getChannel());
+            weights = weightInitializer.generate(weightDims);
+
         }
+
+
 
         verifyBlock();
     }

@@ -15,12 +15,14 @@ public class FlattenOp extends BlockOperation{
 
         orgDims = input.getDims();
 
+        int count = 0;
         for(int n=0;n<input.getNum();n++){
         for(int d=0;d<input.getChannels();d++){
             for(int w=0; w< input.getWidth();w++){
                 for(int l=0; l < input.getLength();l++){
 
-                    newStruct.getValues()[0][0][ l+ w*input.getWidth() + d*input.getChannels()][0] = input.getValue(n,d,w,l);
+                    newStruct.getValues()[0][0][count][0] = input.getValue(n,d,w,l);
+                count++;
                 }
             }
         }}

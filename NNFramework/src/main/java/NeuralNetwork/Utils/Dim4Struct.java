@@ -66,6 +66,10 @@ public class Dim4Struct {
             return values[num][channel][width][length];
         }
 
+        public void setValue(int value, int num, int channel, int width, int length){
+            values[num][channel][width][length] = value;
+        }
+
         public boolean CompareDimensions (Dim4Struct otherStruct){
             if (width == otherStruct.getWidth() && length == otherStruct.getLength() && channels == otherStruct.getChannels()) {
                 return true;

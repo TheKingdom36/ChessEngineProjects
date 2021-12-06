@@ -8,6 +8,6 @@ public class None implements ActivationFunction {
 
     @Override
     public double getDerivative(double value) {
-        return value;
+        return 1;
     }
 }

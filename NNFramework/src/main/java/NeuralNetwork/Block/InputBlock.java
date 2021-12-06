@@ -49,7 +49,7 @@ public InputBlock(Dim4Struct.Dims inputSize){
         return outputNeurons;
     }
 
-    @Override
+
     public void addToPostCalculationOperations(BlockOperation operation) {
         blockOperations.add(operation);
     }

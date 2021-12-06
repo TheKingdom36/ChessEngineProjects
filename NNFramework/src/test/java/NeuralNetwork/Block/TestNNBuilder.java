@@ -1,26 +1,5 @@
 package NeuralNetwork.Block;
 
-import Events.LearningEvent;
-import Events.LearningEventListener;
-import NeuralNetwork.ActivationFunctions.ReLU;
-import NeuralNetwork.ActivationFunctions.Sigmoid;
-import NeuralNetwork.Learning.LearningRule;
-import NeuralNetwork.Learning.SGD;
-import NeuralNetwork.LossFunctions.MSE;
-import NeuralNetwork.Mnist.MnistDataReaderDataSet;
-import NeuralNetwork.NNBuilders.NNBuilder;
-import NeuralNetwork.Operations.SoftmaxOp;
-import NeuralNetwork.Utils.DataSet;
-import NeuralNetwork.Utils.PolicyDataSetRow;
-import NeuralNetwork.Utils.Dim3Struct;
-import NeuralNetwork.WeightIntializers.Xavier;
-import NeuralNetwork.WeightIntializers.uniformDistribution;
-import NeuralNetwork.Utils.UtilityMethods;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.Random;
-
 import static org.junit.Assert.assertEquals;
 
 public class TestNNBuilder {

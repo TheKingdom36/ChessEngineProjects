@@ -1,12 +1,9 @@
 package NeuralNetwork.Block;
 
 import NeuralNetwork.ActivationFunctions.ActivationFunction;
-import NeuralNetwork.Utils.Dim3Struct;
 import NeuralNetwork.Utils.Dim4Struct;
 
-import java.util.ArrayList;
-
-public final class ConvolutionalBlock extends FeatureBlock {
+public final class ConvolutionalBlock extends SingleFeatureBlock {
 
     private int numOfKernels;
     private int kernelLength;
@@ -38,8 +35,10 @@ public final class ConvolutionalBlock extends FeatureBlock {
             this.neurons = new Dim4Struct(dims);
         }
 
-        if(weights==null){
-            throw new RuntimeException("Weights have not been initialised") ;
+        if(weights== null){
+
+            Dim4Struct.Dims weightDims = new Dim4Struct.Dims(numOfKernels,inputNeuronsDims.getChannel(),kernelWidth ,kernelLength);
+            weights = weightInitializer.generate(weightDims);
         }
 
         verifyBlock();

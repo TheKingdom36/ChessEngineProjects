@@ -3,6 +3,7 @@ package NeuralNetwork.Block;
 import NeuralNetwork.Operations.BlockOperation;
 import NeuralNetwork.Utils.Dim3Struct;
 import NeuralNetwork.Utils.Dim4Struct;
+import NeuralNetwork.WeightIntializers.WeightInitializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,8 @@ public interface WeightBlock extends Block{
     Dim4Struct getWeights();
 
     void setWeights(Dim4Struct weights);
+
+    void setWeightInitializer(WeightInitializer initializer);
 
     void resetErrors();
 

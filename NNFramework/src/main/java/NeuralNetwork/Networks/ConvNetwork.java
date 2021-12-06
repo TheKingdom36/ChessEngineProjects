@@ -2,8 +2,6 @@ package NeuralNetwork.Networks;
 
 import NeuralNetwork.ActivationFunctions.ActivationFunction;
 import NeuralNetwork.Block.*;
-import NeuralNetwork.Block.Output.BasicOutputBlock;
-import NeuralNetwork.Block.Output.OutputBlock;
 import NeuralNetwork.Learning.LearningRule;
 import NeuralNetwork.Learning.SGD;
 import NeuralNetwork.LossFunctions.LossFunction;
@@ -17,26 +15,30 @@ import java.util.List;
 public class ConvNetwork extends BasicNetwork<LearningRule> {
     @Override
     public void setUp() {
-
+        super.setUp();
     }
 
     public static class builder{
         protected ConvNetwork neuralNetwork;
 
-        protected WeightBlock lastBlock;
-        protected WeightBlock lastFeatureBlock;
+        protected FeatureBlock lastBlock;
+        protected FeatureBlock lastFeatureBlock;
 
         boolean inputProvided=false;
 
         private List<FeatureBlock> blocks;
-        private List<OutputBlock> outputBlocks;
+
 
         public builder(){
             neuralNetwork = new ConvNetwork();
-            outputBlocks = new ArrayList<>();
+
             blocks = new ArrayList<>();
         }
 
+        public builder addLossFunction(LossFunction lossFunction){
+            neuralNetwork.setLossFunction(lossFunction);
+            return this;
+        }
 
         public builder addInputBlock(Dim4Struct.Dims inputSize){
             neuralNetwork.setInputBlock(new InputBlock(inputSize));
@@ -55,20 +57,6 @@ public class ConvNetwork extends BasicNetwork<LearningRule> {
             return this;
         }
 
-
-        public builder addOutputBlock(int numOfOutputNeurons ,LossFunction lossFunction){
-
-            if(outputBlocks.size()==0){
-                lastFeatureBlock.setUp();
-            }
-
-            BasicOutputBlock block = new BasicOutputBlock(numOfOutputNeurons,( lastFeatureBlock.getOutput()).totalNumOfValues(),lossFunction);
-            outputBlocks.add(block);
-
-            lastBlock = block;
-
-            return this;
-        }
 
 
         public builder withPostOperation(BlockOperation block){
@@ -111,6 +99,16 @@ public class ConvNetwork extends BasicNetwork<LearningRule> {
             return this;
         }
 
+        public builder addOperationBlock(){
+            lastBlock.setUp();
+
+            OperationBlock block = new OperationBlock(lastBlock.getOutput().getDims());
+
+            lastBlock = block;
+            blocks.add(block);
+            return this;
+        }
+
 
         public builder addFullyConnectedBlock(int numOfNeurons ,ActivationFunction function) {
             FullyConnectedBlock block;
@@ -137,6 +135,26 @@ public class ConvNetwork extends BasicNetwork<LearningRule> {
         }
 
 
+        /*
+        interface AnonBuilderFunction{
+            public Branch(InputDims dims){
+            }
+        }
+         */
+        public builder addBranchBlock(BranchBlockCreator creator){
+
+            lastBlock.setUp();
+
+            creator.create(lastBlock.getOutput());
+
+
+            return this;
+
+        }
+
+
+
+
         public builder addWeights(Dim4Struct weights){
 
             lastBlock.setWeights(weights);
@@ -152,13 +170,7 @@ public class ConvNetwork extends BasicNetwork<LearningRule> {
                 neuralNetwork.setLearningRule(new SGD());
             }
 
-            outputBlocks.forEach(o->o.setUp());
-
-            if(outputBlocks.size()>1){
-
-            }else {
-                neuralNetwork.setOutputBlock(outputBlocks.get(0));
-            }
+            lastBlock.setUp();
 
             neuralNetwork.addBlocks(blocks);
             neuralNetwork.setUp();
